@@ -1,0 +1,22 @@
+{
+	"name": "chess-lock",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vue-tsc -b && vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"vue": "^3.4.29"
+	},
+	"devDependencies": {
+		"@types/chrome": "^0.0.268",
+		"@vitejs/plugin-vue": "^5.0.5",
+		"prettier": "^3.3.2",
+		"typescript": "^5.2.2",
+		"vite": "^5.3.1",
+		"vue-tsc": "^2.0.21"
+	}
+}

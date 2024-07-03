@@ -1,0 +1,31 @@
+{
+	"manifest_version": 3,
+	"name": "ChessLock",
+	"version": "1.0.0",
+	"description": "A browser extension that allows you to use chess moves as a password",
+	"background": {
+		"service_worker": "assets/background.js",
+		"type": "module"
+	},
+	"action": {
+		"default_popup": "index.html",
+		"default_icon": {
+			"16": "lockicon.png"
+		},
+		"default_title": "ChessLock"
+	},
+	"icons": {
+		"16": "lockicon.png",
+		"48": "lockicon.png",
+		"128": "lockicon.png",
+		"256": "lockicon.png"
+	},
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"run_at": "document_start",
+			"js": ["assets/content.js"]
+		}
+	],
+	"permissions": ["scripting", "activeTab"]
+}
