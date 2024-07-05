@@ -18,14 +18,14 @@
 
 		/* Linting */
 		"strict": true,
-        "noImplicitAny": true,
+		"noImplicitAny": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-        "exactOptionalPropertyTypes": true,
-        "noImplicitReturns": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
-        "noImplicitOverride": true,
-        "noPropertyAccessFromIndexSignature": true
+		"noImplicitOverride": true,
+		"noPropertyAccessFromIndexSignature": true
 	},
 	"include": ["src/**/*.ts", "src/**/*.vue"]
 }

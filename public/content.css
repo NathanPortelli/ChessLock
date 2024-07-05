@@ -1,0 +1,52 @@
+#tooltip {
+	display: none;
+	padding: 5px;
+	z-index: 999;
+}
+
+#tooltip[data-show] {
+	position: fixed;
+	display: flex;
+}
+
+#chess-board {
+	position: fixed;
+	z-index: 999999;
+	outline: 1px solid black;
+	border-radius: 5px;
+	padding: 10px;
+	left: 10px;
+	top: 10px;
+	visibility: hidden;
+	background: white;
+}
+
+#chess-container {
+	width: 300px;
+	height: 300px;
+	border: 1px solid black;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: repeat(8, 1fr);
+}
+
+#chess-container > div {
+	display: flex;
+}
+
+#chess-container > div div {
+	height: 100%;
+	flex: 1 1 0px;
+}
+
+#chess-container > div:nth-child(even) {
+	flex-direction: row-reverse;
+}
+
+#chess-container > div div:nth-child(even) {
+	background-color: white;
+}
+
+#chess-container > div div:nth-child(odd) {
+	background-color: black;
+}
