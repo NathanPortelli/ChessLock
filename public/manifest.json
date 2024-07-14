@@ -10,15 +10,15 @@
 	"action": {
 		"default_popup": "index.html",
 		"default_icon": {
-			"16": "lockicon.png"
+			"16": "chessicon.png"
 		},
 		"default_title": "ChessLock"
 	},
 	"icons": {
-		"16": "lockicon.png",
-		"48": "lockicon.png",
-		"128": "lockicon.png",
-		"256": "lockicon.png"
+		"16": "chessicon.png",
+		"48": "chessicon.png",
+		"128": "chessicon.png",
+		"256": "chessicon.png"
 	},
 	"content_scripts": [
 		{
@@ -28,5 +28,6 @@
 			"css": ["content.css"]
 		}
 	],
-	"permissions": ["scripting", "activeTab"]
+	"permissions": ["scripting", "activeTab", "storage"],
+	"host_permissions": ["<all_urls>"]
 }
