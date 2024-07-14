@@ -11,7 +11,7 @@ const popperFactory = (element: Element) => {
 			{
 				name: "offset",
 				options: {
-					offset: [0, -50]
+					offset: [0, -40]
 				}
 			}
 		]
@@ -28,30 +28,64 @@ const handleFocus = (e: FocusEvent) => {
 	popperInstance?.update();
 };
 
+// const chessPiecesWhite = {
+// 	king: "♔",
+// 	queen: "♕",
+// 	rook: "♖",
+// 	bishop: "♗",
+// 	knight: "♘",
+// 	pawn: "♙"
+// };
+
+const virtualChessBoard = [	
+	["", "", "", "", "", "", "", ""],
+	["", "", "", "", "", "", "", ""],
+	["", "", "", "", "", "", "", ""],
+	["", "", "", "", "", "", "", ""],
+	["", "", "", "", "", "", "", ""],
+	["", "", "", "", "", "", "", ""],
+	["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+	["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"],
+]
+
 document.addEventListener("DOMContentLoaded", () => {
 	tooltip = document.createElement("div");
-	tooltip.id = "tooltip";
+	tooltip.id = "cl-tooltip";
 	tooltip.role = "tooltip";
-	tooltip.innerHTML = `<button id="show-chessboard">Chess icon</button>`;
+	tooltip.innerHTML = `<button id="cl-show-chessboard">♟</button>`;
 	document.body.appendChild(tooltip);
 
 	const chessBoard = document.createElement("div");
-	chessBoard.id = "chess-board";
-	chessBoard.innerHTML = `<div id="chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>`;
+	chessBoard.id = "cl-chess-board";
+	chessBoard.innerHTML = `<div><button id="cl-cls-btn">x</button><div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div></div>`;
 	document.body.appendChild(chessBoard);
 
+	const chessContainer = document.getElementById("cl-chess-container");
+
+	if(chessContainer) {
+		for (let i = 0; i < 8; i++) {
+			for (let j = 0; j < 8; j++) {
+				chessContainer.children[i].children[j].innerHTML = `<span class="cl-chess-piece" id="cl-chesspiece-${i}-${j}">${virtualChessBoard[i][j]}</span>`
+			}
+		}
+	}
+	
 	document.addEventListener("click", (e: MouseEvent) => {
 		if (!e.target || !(e.target instanceof HTMLElement)) {
 			return;
 		}
 
-		if (e.target.id === "show-chessboard") {
+		if (e.target.id === "cl-show-chessboard") {
 			chessBoard.style.visibility = "visible";
 		} else if (
 			e.target instanceof HTMLInputElement &&
 			e.target.type === "password"
 		) {
 			return;
+		}
+
+		if(e.target.id === "cl-cls-btn") {
+			chessBoard.style.visibility = "hidden";
 		}
 
 		tooltip.removeAttribute("data-show");

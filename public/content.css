@@ -1,15 +1,15 @@
-#tooltip {
+#cl-tooltip {
 	display: none;
 	padding: 5px;
 	z-index: 999;
 }
 
-#tooltip[data-show] {
+#cl-tooltip[data-show] {
 	position: fixed;
 	display: flex;
 }
 
-#chess-board {
+#cl-chess-board {
 	position: fixed;
 	z-index: 999999;
 	outline: 1px solid black;
@@ -21,7 +21,7 @@
 	background: white;
 }
 
-#chess-container {
+#cl-chess-container {
 	width: 300px;
 	height: 300px;
 	border: 1px solid black;
@@ -30,23 +30,51 @@
 	grid-template-rows: repeat(8, 1fr);
 }
 
-#chess-container > div {
+#cl-chess-container > div {
 	display: flex;
 }
 
-#chess-container > div div {
+#cl-chess-container > div div {
 	height: 100%;
 	flex: 1 1 0px;
 }
 
-#chess-container > div:nth-child(even) {
+#cl-chess-container > div:nth-child(even) {
 	flex-direction: row-reverse;
 }
 
-#chess-container > div div:nth-child(even) {
+#cl-chess-container > div div:nth-child(even) {
+	background-color: #779556;
+}
+
+#cl-chess-container > div div:nth-child(odd) {
 	background-color: white;
 }
 
-#chess-container > div div:nth-child(odd) {
-	background-color: black;
+#cl-show-chessboard {
+	font-size: 2rem;
+	cursor: pointer;
+	border: none;
+	background-color: transparent;
+}
+
+#cl-show-chessboard:hover {
+	background-color: rgba(158, 158, 158, 0.3);
+}
+
+#cl-cls-btn {
+	cursor: pointer;
+	padding: 0 5px 0 5px;
+	border: #999999 solid 1px;
+}
+
+.cl-chess-piece {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: black;
+	width: 100%;
+	height: 100%;
+	font-size: 34px;
+	cursor: pointer;
 }
