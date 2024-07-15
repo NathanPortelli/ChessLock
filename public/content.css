@@ -149,9 +149,9 @@
 /* Highlighting */
 
 .cl-highlight-1 {
-	background-color: var(--highlight-invalid-colour) !important;
+	background-color: var(--highlight-valid-colour) !important;
 }
 
 .cl-highlight-2 {
-	background-color: var(--highlight-valid-colour) !important;
+	background-color: var(--highlight-invalid-colour) !important;
 }
