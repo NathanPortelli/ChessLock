@@ -4,5 +4,6 @@
 	"trailingComma": "none",
 	"quoteProps": "consistent",
 	"semi": true,
-	"singleQuote": false
+	"singleQuote": false,
+	"printWidth": 120
 }
