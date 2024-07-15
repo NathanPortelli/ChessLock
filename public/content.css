@@ -2,6 +2,7 @@
     --even-block-colour: #779556;
     --odd-block-colour: #ffffff;
     --piece-colour: #000000;
+    --highlight-colour: #ffff00;
 }
 
 /* Tooltip */
@@ -140,4 +141,10 @@
 
 #cl-chess-container {
     clear: both;
+}
+
+/* Highlighting */
+
+.cl-highlight {
+    background-color: var(--highlight-colour) !important;
 }
