@@ -48,6 +48,7 @@ const virtualChessBoard = [
 	["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
 ];
 
+let focusedInput: HTMLInputElement;
 let selectedPiece = "";
 let selectedPieceRow = -1;
 let selectedPieceCol = -1;
@@ -82,6 +83,7 @@ const handleFocus = (e: FocusEvent) => {
 		return;
 	}
 
+	focusedInput = e.target;
 	popperFactory(e.target);
 	tooltip.setAttribute("data-show", "");
 	popperInstance?.update();
@@ -312,6 +314,36 @@ const paintBoard = (firstTime?: boolean) => {
 	}
 };
 
+function getChessNotation(pieceType: string, newRow: number, newColumn: number) {
+	let notation = "";
+
+	switch (pieceType) {
+		case chessPieces.king:
+			notation += "K";
+			break;
+		case chessPieces.queen:
+			notation += "Q";
+			break;
+		case chessPieces.knight:
+			notation += "N";
+			break;
+		case chessPieces.bishop:
+			notation += "B";
+			break;
+		case chessPieces.rook:
+			notation += "R";
+			break;
+		case chessPieces.pawn:
+			notation += "";
+			break;
+	}
+
+	notation += `${8 - newRow}`;
+	notation += String.fromCharCode(94 + newColumn);
+
+	return notation;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 	console.log("Loading ChessLock extension...");
 
@@ -368,7 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			const row = e.target.dataset["row"];
 			const column = e.target.dataset["column"];
 
-			if (!selectedPiece) return;
+			if (!focusedInput || !selectedPiece) return;
 
 			if (row && column && Number.isInteger(parseInt(row)) && Number.isInteger(parseInt(column))) {
 				const nrow = parseInt(row);
@@ -377,9 +409,11 @@ document.addEventListener("DOMContentLoaded", () => {
 				if (validMoveBoard[nrow][ncol] == MoveValidity.VALID) {
 					virtualChessBoard[nrow][ncol] = selectedPiece;
 					virtualChessBoard[selectedPieceRow][selectedPieceCol] = "";
+
+					focusedInput.value += getChessNotation(selectedPiece, nrow, ncol);
+					unselectPiece();
 				}
 
-				unselectPiece();
 				paintBoard(false);
 			}
 		} else if (e.target instanceof HTMLInputElement && e.target.type === "password") {
