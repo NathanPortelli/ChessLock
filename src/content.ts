@@ -6,8 +6,8 @@ let currentColors: ChessboardColours | null = null;
 
 // For colour settings
 export interface ChessboardColours {
-	evenBlock: string;
-	oddBlock: string;
+	darkBlock: string;
+	lightBlock: string;
 	piece: string;
 }
 
@@ -48,11 +48,15 @@ const virtualChessBoard = [
 	["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
 ];
 
+let selectedPiece = "";
+let selectedPieceRow = -1;
+let selectedPieceCol = -1;
+
 // SETTINGS
 
 function updateColours(colours: ChessboardColours) {
-	document.documentElement.style.setProperty("--even-block-colour", colours.evenBlock);
-	document.documentElement.style.setProperty("--odd-block-colour", colours.oddBlock);
+	document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
+	document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
 	document.documentElement.style.setProperty("--piece-colour", colours.piece);
 }
 
@@ -85,17 +89,30 @@ const handleFocus = (e: FocusEvent) => {
 
 // HIGHLIGHTING
 
-// Due to how the even & odd chessboard are currently displayed
-function convertCoords(row: number, col: number): [number, number] {
-	if (row % 2 === 0) {
-		return [row, col];
-	} else {
-		return [row, 7 - col];
-	}
-}
-
 function isSquareEmpty(row: number, col: number): boolean {
 	return virtualChessBoard[row][col] === "";
+}
+
+function unselectPiece() {
+	selectedPiece = "";
+	selectedPieceCol = -1;
+	selectedPieceRow = -1;
+
+	// Reset highlights
+	resetHighlights();
+}
+
+function resetHighlights() {
+	validMoveBoard = [
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0]
+	];
 }
 
 function highlightValidMoves(moves: [number, number][]) {
@@ -103,7 +120,6 @@ function highlightValidMoves(moves: [number, number][]) {
 
 	if (!chessContainer) return;
 
-	// Resetting Highlights#
 	validMoveBoard = [
 		[0, 0, 0, 0, 0, 0, 0, 0],
 		[0, 0, 0, 0, 0, 0, 0, 0],
@@ -117,9 +133,7 @@ function highlightValidMoves(moves: [number, number][]) {
 
 	// New Valid Highlights
 	for (const [row, col] of moves) {
-		const [vrow, vcol] = convertCoords(row, col);
-
-		validMoveBoard[vrow][vcol] = isSquareEmpty(vrow, vcol) ? MoveValidity.VALID : MoveValidity.INVALID;
+		validMoveBoard[row][col] = isSquareEmpty(row, col) ? MoveValidity.VALID : MoveValidity.INVALID;
 	}
 
 	paintBoard(false);
@@ -269,14 +283,29 @@ const paintBoard = (firstTime?: boolean) => {
 	if (chessContainer) {
 		for (let i = 0; i < 8; i++) {
 			for (let j = 0; j < 8; j++) {
+				const isDarkSquare = j % 2 === (i % 2 === 0 ? 1 : 0);
+				const classesToAppend: string[] = [];
+
+				if (isDarkSquare) {
+					classesToAppend.push("cl-chess-piece-dark");
+				} else {
+					classesToAppend.push("cl-chess-piece-light");
+				}
+
+				if (validMoveBoard[i][j] !== MoveValidity.NONE) {
+					classesToAppend.push(`cl-highlight-${validMoveBoard[i][j]}`);
+				}
+
+				const extraClasses = classesToAppend.join(" ");
+
 				if (virtualChessBoard[i][j]) {
 					chessContainer.children[i].children[j].innerHTML =
-						`<span class="cl-chess-piece${validMoveBoard[i][j] != MoveValidity.NONE ? ` cl-highlight-${validMoveBoard[i][j]}` : ""}" id="cl-chesspiece-${i}-${j}" data-row="${i}" data-column="${j}">
+						`<span class="cl-chess-piece ${extraClasses}" id="cl-chesspiece-${i}-${j}" data-row="${i}" data-column="${j}">
                             ${virtualChessBoard[i][j]}
                         </span>`;
 				} else {
 					chessContainer.children[i].children[j].innerHTML =
-						`<span id="cl-chessquare-${i}-${j}" data-row="${i}" data-column="${j}"></span>`;
+						`<span class="${extraClasses}" id="cl-chesssquare-${i}-${j}" data-row="${i}" data-column="${j}"></span>`;
 				}
 			}
 		}
@@ -326,27 +355,32 @@ document.addEventListener("DOMContentLoaded", () => {
 				const ncol = parseInt(column);
 
 				const piece = virtualChessBoard[nrow][ncol];
+				selectedPiece = piece;
+				selectedPieceRow = nrow;
+				selectedPieceCol = ncol;
 
 				if (piece) {
 					const validMoves = getValidMoves(piece, nrow, ncol);
 					highlightValidMoves(validMoves);
 				}
 			}
-		} else if (e.target.id.startsWith("cl-chessquare")) {
+		} else if (e.target.id.startsWith("cl-chesssquare")) {
 			const row = e.target.dataset["row"];
 			const column = e.target.dataset["column"];
+
+			if (!selectedPiece) return;
 
 			if (row && column && Number.isInteger(parseInt(row)) && Number.isInteger(parseInt(column))) {
 				const nrow = parseInt(row);
 				const ncol = parseInt(column);
 
-				const piece = virtualChessBoard[nrow][ncol];
-
-				if (piece) {
-					const validMoves = getValidMoves(piece, nrow, ncol);
-
-					// TODO if is valid move, move it
+				if (validMoveBoard[nrow][ncol] == MoveValidity.VALID) {
+					virtualChessBoard[nrow][ncol] = selectedPiece;
+					virtualChessBoard[selectedPieceRow][selectedPieceCol] = "";
 				}
+
+				unselectPiece();
+				paintBoard(false);
 			}
 		} else if (e.target instanceof HTMLInputElement && e.target.type === "password") {
 			return;

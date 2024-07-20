@@ -2,14 +2,14 @@
 import { ref, onMounted } from "vue";
 import { ChessboardColours } from "./content";
 
-const evenBlockColour = ref("#779556");
-const oddBlockColour = ref("#ffffff");
+const darkBlockColour = ref("#779556");
+const lightBlockColour = ref("#ffffff");
 const pieceColour = ref("#000000");
 
 const saveColours = () => {
 	const colours: ChessboardColours = {
-		evenBlock: evenBlockColour.value,
-		oddBlock: oddBlockColour.value,
+		darkBlock: darkBlockColour.value,
+		lightBlock: lightBlockColour.value,
 		piece: pieceColour.value
 	};
 
@@ -26,8 +26,8 @@ const saveColours = () => {
 const loadColours = () => {
 	chrome.storage.sync.get("chessboardColours", (result: { [key: string]: any }) => {
 		if (result["chessboardColours"]) {
-			evenBlockColour.value = result["chessboardColours"].evenBlock;
-			oddBlockColour.value = result["chessboardColours"].oddBlock;
+			darkBlockColour.value = result["chessboardColours"].darkBlock;
+			lightBlockColour.value = result["chessboardColours"].lightBlock;
 			pieceColour.value = result["chessboardColours"].piece;
 
 			// to send colours to content script
@@ -42,8 +42,8 @@ const loadColours = () => {
 };
 
 const resetColours = () => {
-	evenBlockColour.value = "#779556";
-	oddBlockColour.value = "#ffffff";
+	darkBlockColour.value = "#779556";
+	lightBlockColour.value = "#ffffff";
 	pieceColour.value = "#000000";
 	saveColours();
 };
@@ -58,11 +58,11 @@ onMounted(() => {
 		<h2>ChessLock Settings</h2>
 		<div>
 			<label for="even-colour">Even Blocks:</label>
-			<input type="color" id="even-colour" v-model="evenBlockColour" @change="saveColours" />
+			<input type="color" id="even-colour" v-model="darkBlockColour" @change="saveColours" />
 		</div>
 		<div>
 			<label for="odd-colour">Odd Blocks:</label>
-			<input type="color" id="odd-colour" v-model="oddBlockColour" @change="saveColours" />
+			<input type="color" id="odd-colour" v-model="lightBlockColour" @change="saveColours" />
 		</div>
 		<div>
 			<label for="piece-colour">Pieces:</label>
