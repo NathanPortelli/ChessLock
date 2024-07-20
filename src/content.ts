@@ -338,8 +338,8 @@ function getChessNotation(pieceType: string, newRow: number, newColumn: number) 
 			break;
 	}
 
+	notation += String.fromCharCode(97 + newColumn);
 	notation += `${8 - newRow}`;
-	notation += String.fromCharCode(94 + newColumn);
 
 	return notation;
 }
