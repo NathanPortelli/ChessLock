@@ -106,21 +106,15 @@ div:has(> span.cl-chess-piece-light) {
 	margin-right: auto;
 }
 
-#cl-cls-btn {
+.cl-btn {
 	cursor: pointer;
 	padding: 5px 10px;
 	border: none;
-	background-color: #f0f0f0;
-	color: #333;
 	font-size: 16px;
 	border-radius: 5px;
 	transition:
 		background-color 0.3s,
 		color 0.3s;
-}
-
-#cl-cls-btn:hover {
-	background-color: #e0e0e0;
 }
 
 #cl-cls-btn {
@@ -130,6 +124,16 @@ div:has(> span.cl-chess-piece-light) {
 
 #cl-cls-btn:hover {
 	background-color: #ff3333;
+}
+
+#cl-reset-btn {
+	background-color: #6052e4;
+	color: white;
+	margin-right: 5px;
+}
+
+#cl-reset-btn:hover {
+	background-color: #3827cc;
 }
 
 #cl-chess-board > div {

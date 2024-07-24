@@ -39,7 +39,7 @@ let validMoveBoard = [
 	[0, 0, 0, 0, 0, 0, 0, 0]
 ];
 
-const virtualChessBoard = [
+let virtualChessBoard = [
 	["", "", "", "", "", "", "", ""],
 	["", "", "", "", "", "", "", ""],
 	["", "", "", "", "", "", "", ""],
@@ -63,6 +63,33 @@ function updateColours(colours: ChessboardColours) {
     document.documentElement.style.setProperty("--piece-colour", colours.piece);
     document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
     document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
+}
+
+// RESET
+
+function resetChessboard() {
+    const initialBoard = [
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+        ["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
+    ];
+
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            virtualChessBoard[i][j] = initialBoard[i][j];
+        }
+    }
+
+    unselectPiece();
+    paintBoard(false);
+    if (focusedInput) {
+        focusedInput.value = '';
+    }
 }
 
 // CHESSBOARD
@@ -270,19 +297,20 @@ chrome.runtime.onMessage.addListener((request: { type: string; colours: Chessboa
 
 const paintBoard = (firstTime?: boolean) => {
 	if (firstTime) {
-		const chessBoard = document.createElement("div");
-		chessBoard.id = "cl-chess-board";
-		chessBoard.innerHTML = `<div class="cl-chess-board-container">
+        const chessBoard = document.createElement("div");
+        chessBoard.id = "cl-chess-board";
+        chessBoard.innerHTML = `<div class="cl-chess-board-container">
                 <div class="cl-header-container">
                     <div class="cl-header">ChessLock</div>
                     <div class="cl-button-container">
-                        <button id="cl-cls-btn">✖</button>
+                        <button class="cl-btn" id="cl-reset-btn">↺</button>
+                        <button class="cl-btn" id="cl-cls-btn">✖</button>
                     </div>
                 </div>
                 <div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>
             </div>`;
-		document.body.appendChild(chessBoard);
-	}
+        document.body.appendChild(chessBoard);
+    }
 
 	const chessContainer = document.getElementById("cl-chess-container");
 
@@ -382,6 +410,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			chessBoard.style.visibility = "visible";
 		} else if (e.target.id === "cl-cls-btn") {
 			chessBoard.style.visibility = "hidden";
+		} else if (e.target.id === "cl-reset-btn") {
+            resetChessboard();
 		} else if (e.target.id.startsWith("cl-chesspiece")) {
 			const row = e.target.dataset["row"];
 			const column = e.target.dataset["column"];
