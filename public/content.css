@@ -136,6 +136,40 @@ div:has(> span.cl-chess-piece-light) {
 	background-color: #3827cc;
 }
 
+#cl-symbol-btn {
+	background-color: #006400;
+	color: white;
+	margin-right: 5px;
+}
+
+#cl-symbol-btn:hover {
+	background-color: #038503;
+}
+
+.cl-symbol-btn-off {
+    background-color: #037703 !important;
+	cursor: pointer;
+	padding: 5px 10px;
+	border: none;
+	font-size: 16px;
+	border-radius: 5px;
+	transition:
+		background-color 0.3s,
+		color 0.3s;
+}
+
+.cl-symbol-btn-on {
+    background-color: #64ee64 !important;
+	cursor: pointer;
+	padding: 5px 10px;
+	border: none;
+	font-size: 16px;
+	border-radius: 5px;
+	transition:
+		background-color 0.3s,
+		color 0.3s;
+}
+
 #cl-chess-board > div {
 	display: flex;
 	justify-content: flex-end;

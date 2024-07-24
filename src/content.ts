@@ -65,6 +65,20 @@ function updateColours(colours: ChessboardColours) {
     document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
 }
 
+// SYMBOLS
+
+let symbolIndex = 0;
+let isSymbolModeActive = false;
+const symbols = ['!', '?', '*', '&', '$', '£', '@'];
+
+function toggleSymbolMode() {
+    isSymbolModeActive = !isSymbolModeActive;
+    const symbolBtn = document.getElementById('cl-symbol-btn');
+    if (symbolBtn) {
+        symbolBtn.className = isSymbolModeActive ? 'cl-symbol-btn-on' : 'cl-symbol-btn-off';
+    }
+}
+
 // RESET
 
 function resetChessboard() {
@@ -85,6 +99,7 @@ function resetChessboard() {
         }
     }
 
+	symbolIndex = 0;
     unselectPiece();
     paintBoard(false);
     if (focusedInput) {
@@ -296,19 +311,20 @@ chrome.runtime.onMessage.addListener((request: { type: string; colours: Chessboa
 });
 
 const paintBoard = (firstTime?: boolean) => {
-	if (firstTime) {
+    if (firstTime) {
         const chessBoard = document.createElement("div");
         chessBoard.id = "cl-chess-board";
         chessBoard.innerHTML = `<div class="cl-chess-board-container">
-                <div class="cl-header-container">
-                    <div class="cl-header">ChessLock</div>
-                    <div class="cl-button-container">
-                        <button class="cl-btn" id="cl-reset-btn">↺</button>
-                        <button class="cl-btn" id="cl-cls-btn">✖</button>
-                    </div>
-                </div>
-                <div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>
-            </div>`;
+			<div class="cl-header-container">
+				<div class="cl-header">ChessLock</div>
+				<div class="cl-button-container">
+					<button class="cl-symbol-btn-off" id="cl-symbol-btn">⁈</button>
+					<button class="cl-btn" id="cl-reset-btn">↺</button>
+					<button class="cl-btn" id="cl-cls-btn">✖</button>
+				</div>
+			</div>
+			<div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>
+		</div>`;
         document.body.appendChild(chessBoard);
     }
 
@@ -373,6 +389,11 @@ function getChessNotation(pieceType: string, newRow: number, newColumn: number) 
 	notation += String.fromCharCode(97 + newColumn);
 	notation += `${8 - newRow}`;
 
+	if (isSymbolModeActive) {
+        notation += symbols[symbolIndex];
+        symbolIndex = (symbolIndex + 1) % symbols.length;
+    }
+
 	return notation;
 }
 
@@ -412,6 +433,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			chessBoard.style.visibility = "hidden";
 		} else if (e.target.id === "cl-reset-btn") {
             resetChessboard();
+		} else if (e.target.id === "cl-symbol-btn") {
+            toggleSymbolMode();
 		} else if (e.target.id.startsWith("cl-chesspiece")) {
 			const row = e.target.dataset["row"];
 			const column = e.target.dataset["column"];
