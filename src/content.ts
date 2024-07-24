@@ -9,6 +9,8 @@ export interface ChessboardColours {
 	darkBlock: string;
 	lightBlock: string;
 	piece: string;
+	highlightValid: string;
+	highlightInvalid: string;
 }
 
 const chessPieces = {
@@ -56,9 +58,11 @@ let selectedPieceCol = -1;
 // SETTINGS
 
 function updateColours(colours: ChessboardColours) {
-	document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
-	document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
-	document.documentElement.style.setProperty("--piece-colour", colours.piece);
+    document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
+    document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
+    document.documentElement.style.setProperty("--piece-colour", colours.piece);
+    document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
+    document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
 }
 
 // CHESSBOARD
@@ -163,7 +167,7 @@ function getRookMoves(row: number, col: number): [number, number][] {
 	];
 	for (const [dx, dy] of directions) {
 		for (let i = 1; i < 8; i++) {
-			const newRow = row + i * dx; // To keep moving in that direction --test
+			const newRow = row + i * dx; // To keep moving in that direction
 			const newCol = col + i * dy;
 			if (!addMove(moves, newRow, newCol)) {
 				break;
@@ -203,7 +207,7 @@ function getBishopMoves(row: number, col: number): [number, number][] {
 	];
 	for (const [dx, dy] of directions) {
 		for (let i = 1; i < 8; i++) {
-			const newRow = row + i * dx; // To keep moving in that direction --test
+			const newRow = row + i * dx; // To keep moving in that direction
 			const newCol = col + i * dy;
 			if (!addMove(moves, newRow, newCol)) break;
 		}
@@ -212,7 +216,7 @@ function getBishopMoves(row: number, col: number): [number, number][] {
 }
 
 function getQueenMoves(row: number, col: number): [number, number][] {
-	return getRookMoves(row, col).concat(getBishopMoves(row, col)); // todo: Still need to test this
+	return getRookMoves(row, col).concat(getBishopMoves(row, col));
 }
 
 function getKingMoves(row: number, col: number): [number, number][] {

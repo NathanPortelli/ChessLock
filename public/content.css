@@ -1,9 +1,9 @@
 :root {
-	--dark-block-colour: #779556;
-	--light-block-colour: #ffffff;
-	--piece-colour: #000000;
-	--highlight-invalid-colour: #ff00006b;
-	--highlight-valid-colour: #0080006b;
+    --dark-block-colour: #779556;
+    --light-block-colour: #ffffff;
+    --piece-colour: #000000;
+    --highlight-invalid-colour: #ff0000;
+    --highlight-valid-colour: #008000;
 }
 
 /* Tooltip */
@@ -80,7 +80,7 @@
 	color: var(--piece-colour);
 	width: 100%;
 	height: 100%;
-	font-size: 34px;
+	font-size: 28px;
 	cursor: pointer;
 }
 
