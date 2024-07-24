@@ -5,90 +5,92 @@ import { ChessboardColours } from "./content";
 const darkBlockColour = ref("#779556");
 const lightBlockColour = ref("#ffffff");
 const pieceColour = ref("#000000");
-const highlightValidColour = ref("#0080006b");
-const highlightInvalidColour = ref("#ff00006b");
+const highlightValidColour = ref("#008000");
+const highlightInvalidColour = ref("#ff0000");
 
 const saveColours = () => {
-    const colours: ChessboardColours = {
-        darkBlock: darkBlockColour.value,
-        lightBlock: lightBlockColour.value,
-        piece: pieceColour.value,
-        highlightValid: highlightValidColour.value.slice(0, 7) + "6b",
-        highlightInvalid: highlightInvalidColour.value.slice(0, 7) + "6b"
-    };
+	const colours: ChessboardColours = {
+		darkBlock: darkBlockColour.value,
+		lightBlock: lightBlockColour.value,
+		piece: pieceColour.value,
+		highlightValid: highlightValidColour.value.slice(0, 7) + "6b",
+		highlightInvalid: highlightInvalidColour.value.slice(0, 7) + "6b"
+	};
 
-    chrome.storage.sync.set({ chessboardColours: colours });
+	chrome.storage.sync.set({ chessboardColours: colours });
 
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id!, {
-            type: "UPDATE_COLOURS",
-            colours: colours
-        });
-    });
+	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+		chrome.tabs.sendMessage(tabs[0].id!, {
+			type: "UPDATE_COLOURS",
+			colours: colours
+		});
+	});
 };
 
 const loadColours = () => {
-    chrome.storage.sync.get("chessboardColours", (result: { [key: string]: any }) => {
-        if (result["chessboardColours"]) {
-            darkBlockColour.value = result["chessboardColours"].darkBlock;
-            lightBlockColour.value = result["chessboardColours"].lightBlock;
-            pieceColour.value = result["chessboardColours"].piece;
-            highlightValidColour.value = result["chessboardColours"].highlightValid.slice(0, -2);
-            highlightInvalidColour.value = result["chessboardColours"].highlightInvalid.slice(0, -2);
+	chrome.storage.sync.get("chessboardColours", (result: { [key: string]: any }) => {
+		if (result["chessboardColours"]) {
+			darkBlockColour.value = result["chessboardColours"].darkBlock;
+			lightBlockColour.value = result["chessboardColours"].lightBlock;
+			pieceColour.value = result["chessboardColours"].piece;
+			highlightValidColour.value = result["chessboardColours"].highlightValid.slice(0, -2);
+			highlightInvalidColour.value = result["chessboardColours"].highlightInvalid.slice(0, -2);
 
-            // to send colours to content script
-            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                chrome.tabs.sendMessage(tabs[0].id!, {
-                    type: "UPDATE_COLOURS",
-                    colours: result["chessboardColours"]
-                });
-            });
-        }
-    });
+			// to send colours to content script
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id!, {
+					type: "UPDATE_COLOURS",
+					colours: result["chessboardColours"]
+				});
+			});
+		}
+	});
 };
 
 const resetColours = () => {
-    darkBlockColour.value = "#779556";
-    lightBlockColour.value = "#ffffff";
-    pieceColour.value = "#000000";
-    highlightValidColour.value = "#008000";
-    highlightInvalidColour.value = "#ff0000";
-    saveColours();
+	darkBlockColour.value = "#779556";
+	lightBlockColour.value = "#ffffff";
+	pieceColour.value = "#000000";
+	highlightValidColour.value = "#008000";
+	highlightInvalidColour.value = "#ff0000";
+	saveColours();
 };
 
 onMounted(() => {
-    loadColours();
+	loadColours();
 });
 </script>
 
 <template>
-    <div class="cl-settings-container">
-        <h2>ChessLock Settings</h2>
-        <div>
-            <label for="even-colour">Even Blocks:</label>
-            <input type="color" id="even-colour" v-model="darkBlockColour" @change="saveColours" />
-        </div>
-        <div>
-            <label for="odd-colour">Odd Blocks:</label>
-            <input type="color" id="odd-colour" v-model="lightBlockColour" @change="saveColours" />
-        </div>
-        <div>
-            <label for="piece-colour">Pieces:</label>
-            <input type="color" id="piece-colour" v-model="pieceColour" @change="saveColours" />
-        </div>
-        <div>
-            <label for="highlight-valid-colour">Valid Moves:</label>
-            <input type="color" id="highlight-valid-colour" v-model="highlightValidColour" @change="saveColours" />
-        </div>
-        <div>
-            <label for="highlight-invalid-colour">Invalid Moves:</label>
-            <input type="color" id="highlight-invalid-colour" v-model="highlightInvalidColour" @change="saveColours" />
-        </div>
-        <div>
-            <button class="cl-reset-btn" @click="resetColours">Reset to Default</button>
-        </div>
-        <div>
-            <a href="https://github.com/NathanPortelli/ChessLock" class="cl-github-btn" target="_blank">View on GitHub</a>
-        </div>
-    </div>
+	<div class="cl-settings-container">
+		<h2>ChessLock Settings</h2>
+		<div>
+			<label for="even-colour">Even Blocks:</label>
+			<input type="color" id="even-colour" v-model="darkBlockColour" @change="saveColours" />
+		</div>
+		<div>
+			<label for="odd-colour">Odd Blocks:</label>
+			<input type="color" id="odd-colour" v-model="lightBlockColour" @change="saveColours" />
+		</div>
+		<div>
+			<label for="piece-colour">Pieces:</label>
+			<input type="color" id="piece-colour" v-model="pieceColour" @change="saveColours" />
+		</div>
+		<div>
+			<label for="highlight-valid-colour">Valid Moves:</label>
+			<input type="color" id="highlight-valid-colour" v-model="highlightValidColour" @change="saveColours" />
+		</div>
+		<div>
+			<label for="highlight-invalid-colour">Invalid Moves:</label>
+			<input type="color" id="highlight-invalid-colour" v-model="highlightInvalidColour" @change="saveColours" />
+		</div>
+		<div>
+			<button class="cl-reset-btn" @click="resetColours">Reset to Default</button>
+		</div>
+		<div>
+			<a href="https://github.com/NathanPortelli/ChessLock" class="cl-github-btn" target="_blank"
+				>View on GitHub</a
+			>
+		</div>
+	</div>
 </template>

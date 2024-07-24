@@ -50,6 +50,12 @@ let virtualChessBoard = [
 	["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
 ];
 
+let willResetBoard = false;
+
+let hasKingMoved = false;
+let hasRook1Moved = false;
+let hasRook2Moved = false;
+
 let focusedInput: HTMLInputElement;
 let selectedPiece = "";
 let selectedPieceRow = -1;
@@ -58,53 +64,57 @@ let selectedPieceCol = -1;
 // SETTINGS
 
 function updateColours(colours: ChessboardColours) {
-    document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
-    document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
-    document.documentElement.style.setProperty("--piece-colour", colours.piece);
-    document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
-    document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
+	document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
+	document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
+	document.documentElement.style.setProperty("--piece-colour", colours.piece);
+	document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
+	document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
 }
 
 // SYMBOLS
 
 let symbolIndex = 0;
 let isSymbolModeActive = false;
-const symbols = ['!', '?', '*', '&', '$', '£', '@'];
+const symbols = ["!", "?", "*", "&", "$", "£", "@"];
 
 function toggleSymbolMode() {
-    isSymbolModeActive = !isSymbolModeActive;
-    const symbolBtn = document.getElementById('cl-symbol-btn');
-    if (symbolBtn) {
-        symbolBtn.className = isSymbolModeActive ? 'cl-symbol-btn-on' : 'cl-symbol-btn-off';
-    }
+	isSymbolModeActive = !isSymbolModeActive;
+	const symbolBtn = document.getElementById("cl-symbol-btn");
+	if (symbolBtn) {
+		symbolBtn.className = isSymbolModeActive ? "cl-symbol-btn-on" : "cl-symbol-btn-off";
+	}
 }
 
 // RESET
 
 function resetChessboard() {
-    const initialBoard = [
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-        ["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
-    ];
+	const initialBoard = [
+		["", "", "", "", "", "", "", ""],
+		["", "", "", "", "", "", "", ""],
+		["", "", "", "", "", "", "", ""],
+		["", "", "", "", "", "", "", ""],
+		["", "", "", "", "", "", "", ""],
+		["", "", "", "", "", "", "", ""],
+		["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+		["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
+	];
 
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            virtualChessBoard[i][j] = initialBoard[i][j];
-        }
-    }
+	for (let i = 0; i < 8; i++) {
+		for (let j = 0; j < 8; j++) {
+			virtualChessBoard[i][j] = initialBoard[i][j];
+		}
+	}
 
 	symbolIndex = 0;
-    unselectPiece();
-    paintBoard(false);
-    if (focusedInput) {
-        focusedInput.value = '';
-    }
+	unselectPiece();
+	paintBoard(false);
+	if (focusedInput) {
+		focusedInput.value = "";
+	}
+
+	hasKingMoved = false;
+	hasRook1Moved = false;
+	hasRook2Moved = false;
 }
 
 // CHESSBOARD
@@ -127,6 +137,12 @@ const popperFactory = (element: Element) => {
 const handleFocus = (e: FocusEvent) => {
 	if (!e.target || !(e.target instanceof HTMLInputElement)) {
 		return;
+	}
+
+	if (focusedInput != e.target) {
+		willResetBoard = true;
+	} else {
+		willResetBoard = false;
 	}
 
 	focusedInput = e.target;
@@ -270,15 +286,56 @@ function getKingMoves(row: number, col: number): [number, number][] {
 			}
 		}
 	}
+
+	let canCastleShort = false;
+	let canCastleLong = false;
+
+	if (!hasKingMoved) {
+		if (!hasRook1Moved) {
+			if (col === 3) {
+				if (isSquareEmpty(row, 1) && isSquareEmpty(row, 2)) {
+					canCastleShort = true;
+				}
+			} else if (col === 4) {
+				if (isSquareEmpty(row, 1) && isSquareEmpty(row, 2) && isSquareEmpty(row, 3)) {
+					canCastleLong = true;
+				}
+			}
+		}
+
+		if (!hasRook2Moved) {
+			if (col === 3) {
+				if (isSquareEmpty(row, 4) && isSquareEmpty(row, 5) && isSquareEmpty(row, 6)) {
+					canCastleLong = true;
+				}
+			} else if (col === 4) {
+				if (isSquareEmpty(row, 5) && isSquareEmpty(row, 6)) {
+					canCastleShort = true;
+				}
+			}
+		}
+
+		if (canCastleShort) {
+			addMove(moves, row, col === 3 ? 1 : 6);
+		}
+
+		if (canCastleLong) {
+			addMove(moves, row, col === 3 ? 5 : 2);
+		}
+	}
+
 	return moves;
 }
 
 function addMove(moves: [number, number][], row: number, col: number): boolean {
-	// If within bounds and empty
-	if (row >= 0 && row < 8 && col >= 0 && col < 8 && isSquareEmpty(row, col)) {
+	// If within bounds
+	if (row >= 0 && row < 8 && col >= 0 && col < 8) {
 		moves.push([row, col]);
+
+		if (!isSquareEmpty(row, col)) return false;
 		return true;
 	}
+
 	return false;
 }
 
@@ -311,10 +368,10 @@ chrome.runtime.onMessage.addListener((request: { type: string; colours: Chessboa
 });
 
 const paintBoard = (firstTime?: boolean) => {
-    if (firstTime) {
-        const chessBoard = document.createElement("div");
-        chessBoard.id = "cl-chess-board";
-        chessBoard.innerHTML = `<div class="cl-chess-board-container">
+	if (firstTime) {
+		const chessBoard = document.createElement("div");
+		chessBoard.id = "cl-chess-board";
+		chessBoard.innerHTML = `<div class="cl-chess-board-container">
 			<div class="cl-header-container">
 				<div class="cl-header">ChessLock</div>
 				<div class="cl-button-container">
@@ -325,8 +382,8 @@ const paintBoard = (firstTime?: boolean) => {
 			</div>
 			<div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>
 		</div>`;
-        document.body.appendChild(chessBoard);
-    }
+		document.body.appendChild(chessBoard);
+	}
 
 	const chessContainer = document.getElementById("cl-chess-container");
 
@@ -362,37 +419,44 @@ const paintBoard = (firstTime?: boolean) => {
 	}
 };
 
+function getPieceNotation(pieceType: string) {
+	switch (pieceType) {
+		case chessPieces.king:
+			return "K";
+		case chessPieces.queen:
+			return "Q";
+		case chessPieces.knight:
+			return "N";
+		case chessPieces.bishop:
+			return "B";
+		case chessPieces.rook:
+			return "R";
+		case chessPieces.pawn:
+			return "";
+		default:
+			throw new Error("Unknown piece");
+	}
+}
+
+function getColumnNotation(column: number) {
+	return String.fromCharCode(97 + column);
+}
+
+function getRowNotation(row: number) {
+	return `${8 - row}`;
+}
+
 function getChessNotation(pieceType: string, newRow: number, newColumn: number) {
 	let notation = "";
 
-	switch (pieceType) {
-		case chessPieces.king:
-			notation += "K";
-			break;
-		case chessPieces.queen:
-			notation += "Q";
-			break;
-		case chessPieces.knight:
-			notation += "N";
-			break;
-		case chessPieces.bishop:
-			notation += "B";
-			break;
-		case chessPieces.rook:
-			notation += "R";
-			break;
-		case chessPieces.pawn:
-			notation += "";
-			break;
-	}
-
-	notation += String.fromCharCode(97 + newColumn);
-	notation += `${8 - newRow}`;
+	notation += getPieceNotation(pieceType);
+	notation += getColumnNotation(newColumn);
+	notation += getRowNotation(newRow);
 
 	if (isSymbolModeActive) {
-        notation += symbols[symbolIndex];
-        symbolIndex = (symbolIndex + 1) % symbols.length;
-    }
+		notation += symbols[symbolIndex];
+		symbolIndex = (symbolIndex + 1) % symbols.length;
+	}
 
 	return notation;
 }
@@ -429,12 +493,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (e.target.id === "cl-show-chessboard") {
 			chessBoard.style.visibility = "visible";
+
+			if (willResetBoard) {
+				resetChessboard();
+			}
 		} else if (e.target.id === "cl-cls-btn") {
 			chessBoard.style.visibility = "hidden";
 		} else if (e.target.id === "cl-reset-btn") {
-            resetChessboard();
+			resetChessboard();
 		} else if (e.target.id === "cl-symbol-btn") {
-            toggleSymbolMode();
+			toggleSymbolMode();
 		} else if (e.target.id.startsWith("cl-chesspiece")) {
 			const row = e.target.dataset["row"];
 			const column = e.target.dataset["column"];
@@ -464,10 +532,63 @@ document.addEventListener("DOMContentLoaded", () => {
 				const ncol = parseInt(column);
 
 				if (validMoveBoard[nrow][ncol] == MoveValidity.VALID) {
+					let isPromotion = false;
+					let isCastleShort = false;
+					let isCastleLong = false;
+
+					if (selectedPiece === chessPieces.pawn && nrow === 0) {
+						selectedPiece = chessPieces.queen;
+						isPromotion = true;
+					} else if (selectedPiece === chessPieces.king) {
+						hasKingMoved = true;
+
+						const difference = ncol - selectedPieceCol;
+
+						if (Math.abs(difference) === 2) {
+							// You are castling
+
+							if (difference < 0) {
+								// Rook 1
+								virtualChessBoard[selectedPieceRow][0] = "";
+								virtualChessBoard[selectedPieceRow][ncol + 1] = chessPieces.rook;
+							} else {
+								// Rook 2
+								virtualChessBoard[selectedPieceRow][7] = "";
+								virtualChessBoard[selectedPieceRow][ncol - 1] = chessPieces.rook;
+							}
+
+							if (
+								(selectedPieceCol === 3 && difference < 0) ||
+								(selectedPieceCol === 4 && difference > 0)
+							)
+								isCastleShort = true;
+							if (
+								(selectedPieceCol === 3 && difference > 0) ||
+								(selectedPieceCol === 4 && difference < 0)
+							)
+								isCastleLong = true;
+						}
+					} else if (selectedPiece === chessPieces.rook) {
+						if (selectedPieceRow === 7 && selectedPieceCol === 0) {
+							hasRook1Moved = true;
+						} else if (selectedPieceRow === 7 && selectedPieceCol === 7) {
+							hasRook2Moved = true;
+						}
+					}
+
 					virtualChessBoard[nrow][ncol] = selectedPiece;
 					virtualChessBoard[selectedPieceRow][selectedPieceCol] = "";
 
-					focusedInput.value += getChessNotation(selectedPiece, nrow, ncol);
+					if (isPromotion) {
+						focusedInput.value += `${getColumnNotation(ncol)}${getRowNotation(nrow)}=Q`;
+					} else if (isCastleShort) {
+						focusedInput.value += "O-O";
+					} else if (isCastleLong) {
+						focusedInput.value += "O-O-O";
+					} else {
+						focusedInput.value += getChessNotation(selectedPiece, nrow, ncol);
+					}
+
 					unselectPiece();
 				}
 
@@ -487,4 +608,29 @@ document.addEventListener("DOMContentLoaded", () => {
 			inputElement.addEventListener("focus", handleFocus);
 		}
 	}
+
+	// Function to handle new input elements
+	const handleNewInputElements: MutationCallback = (mutations) => {
+		mutations.forEach((mutation) => {
+			mutation.addedNodes.forEach((node) => {
+				if (node.nodeType === Node.ELEMENT_NODE) {
+					const element = node as Element;
+
+					const inputs = element.querySelectorAll(`input[type="password"]`);
+
+					inputs.forEach((input) => {
+						if (input instanceof HTMLInputElement) {
+							input.addEventListener("focus", handleFocus);
+						}
+					});
+				}
+			});
+		});
+	};
+
+	// Create an observer instance linked to the callback function
+	const observer = new MutationObserver(handleNewInputElements);
+
+	// Start observing the document for child nodes added
+	observer.observe(document.body, { childList: true, subtree: true });
 });
