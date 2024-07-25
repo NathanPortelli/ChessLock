@@ -33,6 +33,19 @@
 	background: white;
 }
 
+#cl-chess-board.dark-mode {
+	background: #333;
+	color: white;
+}
+
+.dark-mode .cl-header {
+	color: white;
+}
+  
+.dark-mode #cl-chess-container {
+	border-color: white;	
+}
+
 .cl-chess-board-container {
 	display: flex;
 	flex-direction: column;

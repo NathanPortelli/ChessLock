@@ -3,6 +3,8 @@ import { createPopper, Instance } from "@popperjs/core";
 let tooltip: HTMLDivElement;
 let popperInstance: Instance | undefined;
 let currentColors: ChessboardColours | null = null;
+let isDarkMode = false;
+let isDefaultDarkMode = false;
 
 // For colour settings
 export interface ChessboardColours {
@@ -11,6 +13,7 @@ export interface ChessboardColours {
 	piece: string;
 	highlightValid: string;
 	highlightInvalid: string;
+	darkMode: boolean;
 }
 
 const chessPieces = {
@@ -75,14 +78,15 @@ function updateColours(colours: ChessboardColours) {
 
 let symbolIndex = 0;
 let isSymbolModeActive = false;
-const symbols = ["!", "?", "*", "&", "$", "£", "@"];
+const symbols = ["!", "?", "*", ")", "&", "$", "{", "£", "@", "}", "_", "[", "^", "#", "]", "("];
 
 function toggleSymbolMode() {
-	isSymbolModeActive = !isSymbolModeActive;
-	const symbolBtn = document.getElementById("cl-symbol-btn");
-	if (symbolBtn) {
-		symbolBtn.className = isSymbolModeActive ? "cl-symbol-btn-on" : "cl-symbol-btn-off";
-	}
+    isSymbolModeActive = !isSymbolModeActive;
+    const symbolBtn = document.getElementById("cl-symbol-btn");
+    if (symbolBtn) {
+        symbolBtn.className = isSymbolModeActive ? "cl-symbol-btn-on" : "cl-symbol-btn-off";
+        symbolBtn.textContent = isSymbolModeActive ? "⁈ [On]" : "⁈";
+    }
 }
 
 // RESET
@@ -150,6 +154,15 @@ const handleFocus = (e: FocusEvent) => {
 	tooltip.setAttribute("data-show", "");
 	popperInstance?.update();
 };
+
+// DARK MODE
+
+function updateDarkMode() {
+	const chessBoard = document.getElementById("cl-chess-board");
+	if (chessBoard) {
+		chessBoard.classList.toggle("dark-mode", isDarkMode);
+	}
+}
 
 // HIGHLIGHTING
 
@@ -360,10 +373,19 @@ function getValidMoves(piece: string, row: number, col: number): [number, number
 
 // INIT
 
-chrome.runtime.onMessage.addListener((request: { type: string; colours: ChessboardColours }) => {
+chrome.runtime.onMessage.addListener((request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean }) => {
 	if (request.type === "UPDATE_COLOURS") {
 		currentColors = request.colours;
 		updateColours(request.colours);
+		isDefaultDarkMode = request.isDefaultDarkMode;
+
+		if (isDefaultDarkMode) {
+			isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+		} else {
+			isDarkMode = request.darkMode;
+		}
+		
+		updateDarkMode();
 	}
 });
 
@@ -462,13 +484,21 @@ function getChessNotation(pieceType: string, newRow: number, newColumn: number) 
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-	console.log("Loading ChessLock extension...");
-
 	tooltip = document.createElement("div");
 	tooltip.id = "cl-tooltip";
 	tooltip.role = "tooltip";
 	tooltip.innerHTML = `<button id="cl-show-chessboard">♟</button>`;
 	document.body.appendChild(tooltip);
+
+	const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  	isDarkMode = prefersDarkScheme.matches;
+
+	prefersDarkScheme.addListener((e) => {
+		if (isDefaultDarkMode) {
+			isDarkMode = e.matches;
+			updateDarkMode();
+		}
+	});
 
 	paintBoard(true);
 
