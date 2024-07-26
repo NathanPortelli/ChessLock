@@ -108,15 +108,17 @@ div:has(> span.cl-chess-piece-light) {
 /* Above Chess Board */
 
 .cl-header-container {
-	display: flex;
 	justify-content: space-between;
-	align-items: start;
+	display: flex;
+    align-items: center;
 }
 
 .cl-header {
-	font-size: 18px;
+	font-size: 20px;
 	font-weight: bold;
 	margin-right: auto;
+	margin-left: 10px;
+	margin-bottom: 7px;
 }
 
 .cl-btn {
@@ -147,6 +149,18 @@ div:has(> span.cl-chess-piece-light) {
 
 #cl-reset-btn:hover {
 	background-color: #3827cc;
+}
+
+.cl-drag-handle {
+    cursor: move;
+	padding: 5px 5px;
+	border: none;
+	font-size: 16px;
+	border-radius: 5px;
+
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 10px;
 }
 
 #cl-symbol-btn {

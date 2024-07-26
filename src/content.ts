@@ -5,6 +5,10 @@ let popperInstance: Instance | undefined;
 let currentColors: ChessboardColours | null = null;
 let isDarkMode = false;
 let isDefaultDarkMode = false;
+// For dragging
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
 
 // For colour settings
 export interface ChessboardColours {
@@ -63,6 +67,29 @@ let focusedInput: HTMLInputElement;
 let selectedPiece = "";
 let selectedPieceRow = -1;
 let selectedPieceCol = -1;
+
+// DRAGGING
+
+function enableDragging(element: HTMLElement) {
+    const dragHandle = element.querySelector('.cl-drag-handle') as HTMLElement;
+
+    dragHandle.addEventListener('mousedown', (e: MouseEvent) => {
+        isDragging = true;
+        dragOffsetX = e.clientX - element.offsetLeft;
+        dragOffsetY = e.clientY - element.offsetTop;
+    });
+
+    document.addEventListener('mousemove', (e: MouseEvent) => {
+        if (isDragging) {
+            element.style.left = `${e.clientX - dragOffsetX}px`;
+            element.style.top = `${e.clientY - dragOffsetY}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+}
 
 // SETTINGS
 
@@ -395,6 +422,7 @@ const paintBoard = (firstTime?: boolean) => {
 		chessBoard.id = "cl-chess-board";
 		chessBoard.innerHTML = `<div class="cl-chess-board-container">
 			<div class="cl-header-container">
+				<div class="cl-drag-handle">☰</div>
 				<div class="cl-header">ChessLock</div>
 				<div class="cl-button-container">
 					<button class="cl-symbol-btn-off" id="cl-symbol-btn" title="Add symbols after notation">⁈</button>
@@ -501,6 +529,11 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	paintBoard(true);
+
+	const chessBoard = document.getElementById('cl-chess-board');
+	if (chessBoard) {
+		enableDragging(chessBoard);
+	}
 
 	if (currentColors) {
 		updateColours(currentColors);
@@ -625,6 +658,10 @@ document.addEventListener("DOMContentLoaded", () => {
 				paintBoard(false);
 			}
 		} else if (e.target instanceof HTMLInputElement && e.target.type === "password") {
+			return;
+		}
+
+		if (e.target.closest('.cl-button-container')) {
 			return;
 		}
 
