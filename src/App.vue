@@ -118,38 +118,57 @@
 
 <template>
 	<div class="cl-settings-container">
-		<h2>ChessLock Settings</h2>
-		<div>
-			<label for="dark-mode">Dark Mode:</label>
-			<input type="checkbox" id="dark-mode" v-model="darkMode" @change="hasUserChangedDarkMode = true; isDefaultDarkMode = false;" />
+		<h1>ChessLock Settings</h1>
+		<div class="cl-settings-card">
+			<div class="cl-setting">
+				<label for="dark-mode">
+					<i class="fas fa-moon"></i>
+					Dark Mode
+				</label>
+				<label class="cl-switch">
+					<input type="checkbox" id="dark-mode" v-model="darkMode" @change="hasUserChangedDarkMode = true; isDefaultDarkMode = false;">
+					<span class="cl-slider"></span>
+				</label>
+			</div>
+			<div class="cl-setting">
+				<label for="even-colour">
+					<i class="fas fa-chess-board"></i>
+					Even Blocks
+				</label>
+				<input type="color" id="even-colour" v-model="darkBlockColour" @change="saveColours">
+			</div>
+			<div class="cl-setting">
+				<label for="odd-colour">
+					<i class="fas fa-chess-board"></i>
+					Odd Blocks
+				</label>
+				<input type="color" id="odd-colour" v-model="lightBlockColour" @change="saveColours">
+			</div>
+			<div class="cl-setting">
+				<label for="piece-colour">
+					<i class="fas fa-chess-pawn"></i>
+					Pieces
+				</label>
+				<input type="color" id="piece-colour" v-model="pieceColour" @change="saveColours">
+			</div>
+			<div class="cl-setting">
+				<label for="highlight-valid-colour">
+					<i class="fas fa-check-circle"></i>
+					Valid Moves
+				</label>
+				<input type="color" id="highlight-valid-colour" v-model="highlightValidColour" @change="saveColours">
+			</div>
+			<div class="cl-setting">
+				<label for="highlight-invalid-colour">
+					<i class="fas fa-times-circle"></i>
+					Invalid Moves
+				</label>
+				<input type="color" id="highlight-invalid-colour" v-model="highlightInvalidColour" @change="saveColours">
+			</div>
 		</div>
-		<div>
-			<label for="even-colour">Even Blocks:</label>
-			<input type="color" id="even-colour" v-model="darkBlockColour" @change="saveColours" />
-		</div>
-		<div>
-			<label for="odd-colour">Odd Blocks:</label>
-			<input type="color" id="odd-colour" v-model="lightBlockColour" @change="saveColours" />
-		</div>
-		<div>
-			<label for="piece-colour">Pieces:</label>
-			<input type="color" id="piece-colour" v-model="pieceColour" @change="saveColours" />
-		</div>
-		<div>
-			<label for="highlight-valid-colour">Valid Moves:</label>
-			<input type="color" id="highlight-valid-colour" v-model="highlightValidColour" @change="saveColours" />
-		</div>
-		<div>
-			<label for="highlight-invalid-colour">Invalid Moves:</label>
-			<input type="color" id="highlight-invalid-colour" v-model="highlightInvalidColour" @change="saveColours" />
-		</div>
-		<div>
-			<button class="cl-reset-btn" @click="resetColours">Reset to Default</button>
-		</div>
-		<div>
-			<a href="https://github.com/NathanPortelli/ChessLock" class="cl-github-btn" target="_blank"
-				>View on GitHub
-			</a>
-		</div>
+		<button class="cl-reset-btn" @click="resetColours">Reset to Default</button>
+		<a href="https://github.com/NathanPortelli/ChessLock" class="cl-github-btn" target="_blank">
+			View on GitHub
+		</a>
 	</div>
 </template>

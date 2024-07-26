@@ -17,12 +17,12 @@ export interface ChessboardColours {
 }
 
 const chessPieces = {
-	king: "♔",
-	queen: "♕",
-	rook: "♖",
-	bishop: "♗",
-	knight: "♘",
-	pawn: "♙"
+	king: "♚",
+	queen: "♛",
+	rook: "♜",
+	bishop: "♝",
+	knight: "♞",
+	pawn: "♟"
 };
 
 enum MoveValidity {
@@ -49,8 +49,8 @@ let virtualChessBoard = [
 	["", "", "", "", "", "", "", ""],
 	["", "", "", "", "", "", "", ""],
 	["", "", "", "", "", "", "", ""],
-	["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-	["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
+	["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
+	["♜", "♞", "♝", "♚", "♛", "♝", "♞", "♜"]
 ];
 
 let willResetBoard = false;
@@ -99,8 +99,8 @@ function resetChessboard() {
 		["", "", "", "", "", "", "", ""],
 		["", "", "", "", "", "", "", ""],
 		["", "", "", "", "", "", "", ""],
-		["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
-		["♖", "♘", "♗", "♔", "♕", "♗", "♘", "♖"]
+		["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
+		["♜", "♞", "♝", "♚", "♛", "♝", "♞", "♜"]
 	];
 
 	for (let i = 0; i < 8; i++) {
@@ -397,8 +397,8 @@ const paintBoard = (firstTime?: boolean) => {
 			<div class="cl-header-container">
 				<div class="cl-header">ChessLock</div>
 				<div class="cl-button-container">
-					<button class="cl-symbol-btn-off" id="cl-symbol-btn">⁈</button>
-					<button class="cl-btn" id="cl-reset-btn">↺</button>
+					<button class="cl-symbol-btn-off" id="cl-symbol-btn" title="Add symbols after notation">⁈</button>
+					<button class="cl-btn" id="cl-reset-btn" title="Reset the chessboard and input">↺</button>
 					<button class="cl-btn" id="cl-cls-btn">✖</button>
 				</div>
 			</div>
@@ -639,28 +639,39 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 	}
 
-	// Function to handle new input elements
 	const handleNewInputElements: MutationCallback = (mutations) => {
 		mutations.forEach((mutation) => {
 			mutation.addedNodes.forEach((node) => {
 				if (node.nodeType === Node.ELEMENT_NODE) {
 					const element = node as Element;
-
-					const inputs = element.querySelectorAll(`input[type="password"]`);
-
+					
+					const inputs = element.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`);
+	
 					inputs.forEach((input) => {
 						if (input instanceof HTMLInputElement) {
 							input.addEventListener("focus", handleFocus);
 						}
 					});
+
+					if (element.shadowRoot) {
+						const shadowInputs = element.shadowRoot.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`);
+						shadowInputs.forEach((input) => {
+							if (input instanceof HTMLInputElement) {
+								input.addEventListener("focus", handleFocus);
+							}
+						});
+					}
 				}
 			});
 		});
 	};
-
-	// Create an observer instance linked to the callback function
+	
 	const observer = new MutationObserver(handleNewInputElements);
-
-	// Start observing the document for child nodes added
 	observer.observe(document.body, { childList: true, subtree: true });
+
+	document.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`).forEach((input) => {
+		if (input instanceof HTMLInputElement) {
+			input.addEventListener("focus", handleFocus);
+		}
+	});
 });
