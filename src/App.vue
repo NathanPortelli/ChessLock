@@ -23,20 +23,19 @@
 
 		chrome.storage.sync.set({ 
 			chessboardColours: colours,
-			darkMode: darkMode.value,
-			isDefaultDarkMode: isDefaultDarkMode.value,
-			hasUserChangedDarkMode: hasUserChangedDarkMode.value
+			isDefaultDarkMode: isDefaultDarkMode.value
 		});
 
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			chrome.tabs.sendMessage(tabs[0].id!, {
-			type: "UPDATE_COLOURS",
-			colours: colours,
-			darkMode: darkMode.value
+				type: "UPDATE_COLOURS",
+				colours: colours,
+				darkMode: darkMode.value,
+				isDefaultDarkMode: isDefaultDarkMode.value
 			});
 		});
 	};
-
+	
 	const loadColours = () => {
 		chrome.storage.sync.get(["chessboardColours", "darkMode", "isDefaultDarkMode"], (result: { [key: string]: any }) => {
 			if (result["chessboardColours"]) {

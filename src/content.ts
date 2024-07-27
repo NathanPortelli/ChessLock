@@ -3,12 +3,42 @@ import { createPopper, Instance } from "@popperjs/core";
 let tooltip: HTMLDivElement;
 let popperInstance: Instance | undefined;
 let currentColors: ChessboardColours | null = null;
+// For dark mode
 let isDarkMode = false;
-let isDefaultDarkMode = false;
+let isDefaultDarkMode = true;
 // For dragging
 let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+
+// DARK MODE
+
+// Initialising Dark Mode
+chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode"], (result: { [key: string]: any }) => {
+	if (result["chessboardColours"]) {
+		currentColors = result["chessboardColours"] as ChessboardColours;
+		updateColours(currentColors);
+	}
+
+	if (result.hasOwnProperty("isDefaultDarkMode")) {
+		isDefaultDarkMode = result["isDefaultDarkMode"] as boolean;
+	}
+
+	if (isDefaultDarkMode) {
+		isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+	} else if (currentColors) {
+		isDarkMode = currentColors.darkMode;
+	}
+
+	updateDarkMode();
+});
+
+function updateDarkMode() {
+    const chessBoard = document.getElementById("cl-chess-board");
+    if (chessBoard) {
+        chessBoard.classList.toggle("dark-mode", isDarkMode);
+    }
+}
 
 // For colour settings
 export interface ChessboardColours {
@@ -94,11 +124,14 @@ function enableDragging(element: HTMLElement) {
 // SETTINGS
 
 function updateColours(colours: ChessboardColours) {
-	document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
-	document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
-	document.documentElement.style.setProperty("--piece-colour", colours.piece);
-	document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
-	document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
+    document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
+    document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
+    document.documentElement.style.setProperty("--piece-colour", colours.piece);
+    document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
+    document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
+    
+    isDarkMode = colours.darkMode;
+    updateDarkMode();
 }
 
 // SYMBOLS
@@ -181,15 +214,6 @@ const handleFocus = (e: FocusEvent) => {
 	tooltip.setAttribute("data-show", "");
 	popperInstance?.update();
 };
-
-// DARK MODE
-
-function updateDarkMode() {
-	const chessBoard = document.getElementById("cl-chess-board");
-	if (chessBoard) {
-		chessBoard.classList.toggle("dark-mode", isDarkMode);
-	}
-}
 
 // HIGHLIGHTING
 
@@ -401,19 +425,19 @@ function getValidMoves(piece: string, row: number, col: number): [number, number
 // INIT
 
 chrome.runtime.onMessage.addListener((request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean }) => {
-	if (request.type === "UPDATE_COLOURS") {
-		currentColors = request.colours;
-		updateColours(request.colours);
-		isDefaultDarkMode = request.isDefaultDarkMode;
-
-		if (isDefaultDarkMode) {
-			isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-		} else {
-			isDarkMode = request.darkMode;
-		}
-		
-		updateDarkMode();
-	}
+    if (request.type === "UPDATE_COLOURS") {
+        currentColors = request.colours;
+        updateColours(request.colours);
+        isDefaultDarkMode = request.isDefaultDarkMode;
+        
+        if (isDefaultDarkMode) {
+            isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        } else {
+            isDarkMode = request.darkMode;
+        }
+        
+        updateDarkMode();
+    }
 });
 
 const paintBoard = (firstTime?: boolean) => {
@@ -433,6 +457,7 @@ const paintBoard = (firstTime?: boolean) => {
 			<div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>
 		</div>`;
 		document.body.appendChild(chessBoard);
+		updateDarkMode();
 	}
 
 	const chessContainer = document.getElementById("cl-chess-container");
@@ -556,6 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (e.target.id === "cl-show-chessboard") {
 			chessBoard.style.visibility = "visible";
+			updateDarkMode();
 
 			if (willResetBoard) {
 				resetChessboard();

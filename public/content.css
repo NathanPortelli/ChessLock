@@ -38,6 +38,11 @@
 	color: white;
 }
 
+body.cl-dark-mode {
+    background-color: #333;
+    color: white;
+}
+
 .dark-mode .cl-header {
 	color: white;
 }
