@@ -80,7 +80,13 @@
 		});
 	};
 
-	watch(darkMode, () => {
+	watch(darkMode, (newValue) => {
+		if (newValue) {
+			document.body.classList.add('dark-mode');
+		} else {
+			document.body.classList.remove('dark-mode');
+		}
+
 		if (!hasUserChangedDarkMode.value) {
 			hasUserChangedDarkMode.value = true;
 			isDefaultDarkMode.value = false;
@@ -112,11 +118,15 @@
 			saveColours();
 			}
 		});
+
+		if (darkMode.value) {
+			document.body.classList.add('dark-mode');
+		}
 	});
 </script>
 
 <template>
-	<div class="cl-settings-container">
+	<div :class="{ 'dark-mode': darkMode }" class="cl-settings-container">
 		<h1>ChessLock Settings</h1>
 		<div class="cl-settings-card">
 			<div class="cl-setting">
@@ -129,6 +139,8 @@
 					<span class="cl-slider"></span>
 				</label>
 			</div>
+		</div>
+		<div class="cl-settings-card">
 			<div class="cl-setting">
 				<label for="even-colour">
 					<i class="fas fa-chess-board"></i>

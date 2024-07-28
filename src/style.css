@@ -3,10 +3,6 @@
 	line-height: 1.5;
 	font-weight: 400;
 
-	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
-
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
@@ -19,34 +15,76 @@ body {
 	place-items: center;
 	min-width: 320px;
 	min-height: 100vh;
+	background-color: #f0f0f0;
+}
+
+body.dark-mode {
+	background-color: #242424;
+}
+
+body:not(.dark-mode) {
+	background-color: #ffffff;
 }
 
 #app {
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 1.5rem;
 	text-align: center;
-}
-
-@media (prefers-color-scheme: light) {
-	:root {
-		color: #213547;
-	}
 }
 
 .cl-settings-container {
 	font-family: 'Roboto', sans-serif;
 	max-width: 400px;
-	margin: 0 auto;
-	color: #333;
+	margin: 20px;
 }
+
+/* Dark Mode */
+
+.cl-settings-container.dark-mode {
+	background-color: #242424;
+	color: #fff;
+}
+
+.cl-settings-container.dark-mode .cl-settings-card {
+	background-color: #444;
+}
+
+.cl-settings-container.dark-mode label {
+	color: #fff;
+}
+
+.cl-settings-container.dark-mode .cl-github-btn {
+	background-color: #444;
+}
+
+.cl-settings-container.dark-mode .cl-github-btn:hover {
+	background-color: #666;
+}
+
+.cl-settings-container.dark-mode h1 {
+	color: white;
+}
+
+.cl-settings-card.dark-mode {
+	background-color: #555;
+}
+
+.cl-settings-container.dark-mode label {
+	color: #ffffff;
+}
+
+input[type="color"] {
+	background-color: #858585;
+}
+
+/* Contents */
 
 .cl-settings-container div {
 	margin-bottom: 15px;
 }
 
 .cl-settings-container label {
-	color: white;
+	color: #444;
 	display: inline-block;
 	text-align: right;
 	padding-right: 20px;
@@ -69,21 +107,20 @@ button:hover {
 h1 {
 	font-size: 1.5rem;
 	margin-bottom: 1rem;
-	color: white;
+	color: #333;
 }
 
 .cl-settings-card {
-	background-color: #555;
+	background-color: #dbd8d8;
 	border-radius: 8px;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	padding: 1.5rem;
+	padding: 1rem 1rem 0.2rem 1rem;
 }
   
 .cl-setting {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 1rem;
 }
   
 label {
@@ -126,7 +163,7 @@ input[type="color"] {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #ccc;
+	background-color: #4caeff;
 	transition: .4s;
 	border-radius: 34px;
 }
@@ -138,13 +175,13 @@ input[type="color"] {
 	width: 26px;
 	left: 4px;
 	bottom: 4px;
-	background-color: white;
+	background-color: #85bfee;
 	transition: .4s;
 	border-radius: 50%;
 }
   
 input:checked + .cl-slider {
-	background-color: #2196F3;
+	background-color: white;
 }
 
 input:checked + .cl-slider:before {
