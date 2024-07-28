@@ -262,3 +262,36 @@ div:has(> span.cl-chess-piece-light) {
     border-color: transparent transparent #333 transparent;
     margin-top: -5px;
 }
+
+/* Password Meter */
+
+#cl-password-strength-container {
+	margin-top: 10px;
+	width: 100%;
+	display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#cl-password-strength-meter {
+	height: 5px;
+	width: 100%;
+	background-color: #ffffff;
+	border-radius: 3px;
+}
+
+#cl-password-strength-meter::-webkit-meter-bar {
+	background: none;
+	background-color: #ffffff;
+}
+
+#cl-password-strength-meter::-webkit-meter-optimum-value {
+	transition: width 0.5s;
+}
+
+#cl-password-strength-text {
+	font-size: 15px;
+	font-weight: bold;
+	margin-top: 6px;
+	text-align: center;
+}

@@ -149,6 +149,66 @@ function toggleSymbolMode() {
     }
 }
 
+// PASSWORD METER
+
+function calculatePasswordStrength(password: string): number {
+	let strength = 0;
+
+	if (password.length > 8) strength += 1;  // Length
+	if (password.length > 14) strength += 2;  // Additional length
+	if (password.match(/[a-z]/)) strength += 1;  // Lowercase letters
+	if (password.match(/[A-Z]/)) strength += 1;  // Uppercase letters
+	if (password.match(/\d/)) strength += 1;  // Numbers
+	if (password.match(/[^a-zA-Z\d]/)) strength += 2;  // Special symbols
+	
+	return Math.min(strength, 8);
+  }
+  
+function updatePasswordStrengthMeter(password: string) {
+	const strength = calculatePasswordStrength(password);
+	const meter = document.getElementById('cl-password-strength-meter') as HTMLDivElement;
+	const text = document.getElementById('cl-password-strength-text') as HTMLDivElement;
+
+	const percentage = (strength / 8) * 100;
+	meter.style.width = `${percentage}%`;
+
+	let color, strengthText;
+
+	switch(strength) {
+		case 1:
+		case 2:
+			color = '#ff4d4d';
+			strengthText = 'Very Weak';
+			break;
+		case 3:
+		case 4:
+			color = '#ffa64d';
+			strengthText = 'Weak';
+			break;
+		case 5:
+			color = '#ffff4d';
+			strengthText = 'Moderate';
+			break;
+		case 6:
+		case 7:
+			color = '#4dff4d';
+			strengthText = 'Strong';
+			break;
+		case 8:
+			color = '#00cc00';
+			strengthText = 'Very Strong';
+			break;
+		default:
+			color = '#ddd';
+			strengthText = '';
+			break;
+	}
+
+	meter.style.backgroundColor = color;
+	text.textContent = strengthText;
+	text.style.color = color;
+}
+
 // RESET
 
 function resetChessboard() {
@@ -172,8 +232,10 @@ function resetChessboard() {
 	symbolIndex = 0;
 	unselectPiece();
 	paintBoard(false);
+
 	if (focusedInput) {
 		focusedInput.value = "";
+		updatePasswordStrengthMeter("");
 	}
 
 	hasKingMoved = false;
@@ -456,6 +518,11 @@ const paintBoard = (firstTime?: boolean) => {
 			</div>
 			<div id="cl-chess-container">${`<div>${`<div></div>`.repeat(8)}</div>`.repeat(8)}</div>
 		</div>`;
+		chessBoard.innerHTML += `
+		<div id="cl-password-strength-container">
+			<div id="cl-password-strength-meter"></div>
+			<div id="cl-password-strength-text"></div>
+		</div>`;
 		document.body.appendChild(chessBoard);
 		updateDarkMode();
 	}
@@ -677,7 +744,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					} else {
 						focusedInput.value += getChessNotation(selectedPiece, nrow, ncol);
 					}
-
+					updatePasswordStrengthMeter(focusedInput.value);
 					unselectPiece();
 				}
 
