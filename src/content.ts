@@ -25,7 +25,7 @@ chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode"], (result: { [
 	}
 
 	if (isDefaultDarkMode) {
-		isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+		isDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 	} else if (currentColors) {
 		isDarkMode = currentColors.darkMode;
 	}
@@ -34,10 +34,10 @@ chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode"], (result: { [
 });
 
 function updateDarkMode() {
-    const chessBoard = document.getElementById("cl-chess-board");
-    if (chessBoard) {
-        chessBoard.classList.toggle("dark-mode", isDarkMode);
-    }
+	const chessBoard = document.getElementById("cl-chess-board");
+	if (chessBoard) {
+		chessBoard.classList.toggle("dark-mode", isDarkMode);
+	}
 }
 
 // For colour settings
@@ -101,37 +101,37 @@ let selectedPieceCol = -1;
 // DRAGGING
 
 function enableDragging(element: HTMLElement) {
-    const dragHandle = element.querySelector('.cl-drag-handle') as HTMLElement;
+	const dragHandle = element.querySelector(".cl-drag-handle") as HTMLElement;
 
-    dragHandle.addEventListener('mousedown', (e: MouseEvent) => {
-        isDragging = true;
-        dragOffsetX = e.clientX - element.offsetLeft;
-        dragOffsetY = e.clientY - element.offsetTop;
-    });
+	dragHandle.addEventListener("mousedown", (e: MouseEvent) => {
+		isDragging = true;
+		dragOffsetX = e.clientX - element.offsetLeft;
+		dragOffsetY = e.clientY - element.offsetTop;
+	});
 
-    document.addEventListener('mousemove', (e: MouseEvent) => {
-        if (isDragging) {
-            element.style.left = `${e.clientX - dragOffsetX}px`;
-            element.style.top = `${e.clientY - dragOffsetY}px`;
-        }
-    });
+	document.addEventListener("mousemove", (e: MouseEvent) => {
+		if (isDragging) {
+			element.style.left = `${e.clientX - dragOffsetX}px`;
+			element.style.top = `${e.clientY - dragOffsetY}px`;
+		}
+	});
 
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-    });
+	document.addEventListener("mouseup", () => {
+		isDragging = false;
+	});
 }
 
 // SETTINGS
 
 function updateColours(colours: ChessboardColours) {
-    document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
-    document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
-    document.documentElement.style.setProperty("--piece-colour", colours.piece);
-    document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
-    document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
-    
-    isDarkMode = colours.darkMode;
-    updateDarkMode();
+	document.documentElement.style.setProperty("--dark-block-colour", colours.darkBlock);
+	document.documentElement.style.setProperty("--light-block-colour", colours.lightBlock);
+	document.documentElement.style.setProperty("--piece-colour", colours.piece);
+	document.documentElement.style.setProperty("--highlight-valid-colour", colours.highlightValid);
+	document.documentElement.style.setProperty("--highlight-invalid-colour", colours.highlightInvalid);
+
+	isDarkMode = colours.darkMode;
+	updateDarkMode();
 }
 
 // SYMBOLS
@@ -141,12 +141,12 @@ let isSymbolModeActive = false;
 const symbols = ["!", "?", "*", ")", "&", "$", "{", "£", "@", "}", "_", "[", "^", "#", "]", "("];
 
 function toggleSymbolMode() {
-    isSymbolModeActive = !isSymbolModeActive;
-    const symbolBtn = document.getElementById("cl-symbol-btn");
-    if (symbolBtn) {
-        symbolBtn.className = isSymbolModeActive ? "cl-symbol-btn-on" : "cl-symbol-btn-off";
-        symbolBtn.textContent = isSymbolModeActive ? "⁈ [On]" : "⁈";
-    }
+	isSymbolModeActive = !isSymbolModeActive;
+	const symbolBtn = document.getElementById("cl-symbol-btn");
+	if (symbolBtn) {
+		symbolBtn.className = isSymbolModeActive ? "cl-symbol-btn-on" : "cl-symbol-btn-off";
+		symbolBtn.textContent = isSymbolModeActive ? "⁈ [On]" : "⁈";
+	}
 }
 
 // PASSWORD METER
@@ -154,53 +154,53 @@ function toggleSymbolMode() {
 function calculatePasswordStrength(password: string): number {
 	let strength = 0;
 
-	if (password.length > 8) strength += 1;  // Length
-	if (password.length > 14) strength += 2;  // Additional length
-	if (password.match(/[a-z]/)) strength += 1;  // Lowercase letters
-	if (password.match(/[A-Z]/)) strength += 1;  // Uppercase letters
-	if (password.match(/\d/)) strength += 1;  // Numbers
-	if (password.match(/[^a-zA-Z\d]/)) strength += 2;  // Special symbols
-	
+	if (password.length > 8) strength += 1; // Length
+	if (password.length > 14) strength += 2; // Additional length
+	if (password.match(/[a-z]/)) strength += 1; // Lowercase letters
+	if (password.match(/[A-Z]/)) strength += 1; // Uppercase letters
+	if (password.match(/\d/)) strength += 1; // Numbers
+	if (password.match(/[^a-zA-Z\d]/)) strength += 2; // Special symbols
+
 	return Math.min(strength, 8);
-  }
-  
+}
+
 function updatePasswordStrengthMeter(password: string) {
 	const strength = calculatePasswordStrength(password);
-	const meter = document.getElementById('cl-password-strength-meter') as HTMLDivElement;
-	const text = document.getElementById('cl-password-strength-text') as HTMLDivElement;
+	const meter = document.getElementById("cl-password-strength-meter") as HTMLDivElement;
+	const text = document.getElementById("cl-password-strength-text") as HTMLDivElement;
 
 	const percentage = (strength / 8) * 100;
 	meter.style.width = `${percentage}%`;
 
 	let color, strengthText;
 
-	switch(strength) {
+	switch (strength) {
 		case 1:
 		case 2:
-			color = '#ff4d4d';
-			strengthText = 'Very Weak';
+			color = "#ff4d4d";
+			strengthText = "Very Weak";
 			break;
 		case 3:
 		case 4:
-			color = '#ffa64d';
-			strengthText = 'Weak';
+			color = "#ffa64d";
+			strengthText = "Weak";
 			break;
 		case 5:
-			color = '#ffff4d';
-			strengthText = 'Moderate';
+			color = "#ffff4d";
+			strengthText = "Moderate";
 			break;
 		case 6:
 		case 7:
-			color = '#4dff4d';
-			strengthText = 'Strong';
+			color = "#4dff4d";
+			strengthText = "Strong";
 			break;
 		case 8:
-			color = '#00cc00';
-			strengthText = 'Very Strong';
+			color = "#00cc00";
+			strengthText = "Very Strong";
 			break;
 		default:
-			color = '#ddd';
-			strengthText = '';
+			color = "#ddd";
+			strengthText = "";
 			break;
 	}
 
@@ -486,21 +486,23 @@ function getValidMoves(piece: string, row: number, col: number): [number, number
 
 // INIT
 
-chrome.runtime.onMessage.addListener((request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean }) => {
-    if (request.type === "UPDATE_COLOURS") {
-        currentColors = request.colours;
-        updateColours(request.colours);
-        isDefaultDarkMode = request.isDefaultDarkMode;
-        
-        if (isDefaultDarkMode) {
-            isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        } else {
-            isDarkMode = request.darkMode;
-        }
-        
-        updateDarkMode();
-    }
-});
+chrome.runtime.onMessage.addListener(
+	(request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean }) => {
+		if (request.type === "UPDATE_COLOURS") {
+			currentColors = request.colours;
+			updateColours(request.colours);
+			isDefaultDarkMode = request.isDefaultDarkMode;
+
+			if (isDefaultDarkMode) {
+				isDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+			} else {
+				isDarkMode = request.darkMode;
+			}
+
+			updateDarkMode();
+		}
+	}
+);
 
 const paintBoard = (firstTime?: boolean) => {
 	if (firstTime) {
@@ -611,9 +613,9 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.body.appendChild(tooltip);
 
 	const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-  	isDarkMode = prefersDarkScheme.matches;
+	isDarkMode = prefersDarkScheme.matches;
 
-	prefersDarkScheme.addListener((e) => {
+	prefersDarkScheme.addEventListener("change", (e) => {
 		if (isDefaultDarkMode) {
 			isDarkMode = e.matches;
 			updateDarkMode();
@@ -622,7 +624,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	paintBoard(true);
 
-	const chessBoard = document.getElementById('cl-chess-board');
+	const chessBoard = document.getElementById("cl-chess-board");
 	if (chessBoard) {
 		enableDragging(chessBoard);
 	}
@@ -754,7 +756,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			return;
 		}
 
-		if (e.target.closest('.cl-button-container')) {
+		if (e.target.closest(".cl-button-container")) {
 			return;
 		}
 
@@ -774,9 +776,11 @@ document.addEventListener("DOMContentLoaded", () => {
 			mutation.addedNodes.forEach((node) => {
 				if (node.nodeType === Node.ELEMENT_NODE) {
 					const element = node as Element;
-					
-					const inputs = element.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`);
-	
+
+					const inputs = element.querySelectorAll(
+						`input[type="password"], input[name*="password"], input[id*="password"]`
+					);
+
 					inputs.forEach((input) => {
 						if (input instanceof HTMLInputElement) {
 							input.addEventListener("focus", handleFocus);
@@ -784,7 +788,9 @@ document.addEventListener("DOMContentLoaded", () => {
 					});
 
 					if (element.shadowRoot) {
-						const shadowInputs = element.shadowRoot.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`);
+						const shadowInputs = element.shadowRoot.querySelectorAll(
+							`input[type="password"], input[name*="password"], input[id*="password"]`
+						);
 						shadowInputs.forEach((input) => {
 							if (input instanceof HTMLInputElement) {
 								input.addEventListener("focus", handleFocus);
@@ -795,13 +801,15 @@ document.addEventListener("DOMContentLoaded", () => {
 			});
 		});
 	};
-	
+
 	const observer = new MutationObserver(handleNewInputElements);
 	observer.observe(document.body, { childList: true, subtree: true });
 
-	document.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`).forEach((input) => {
-		if (input instanceof HTMLInputElement) {
-			input.addEventListener("focus", handleFocus);
-		}
-	});
+	document
+		.querySelectorAll(`input[type="password"], input[name*="password"], input[id*="password"]`)
+		.forEach((input) => {
+			if (input instanceof HTMLInputElement) {
+				input.addEventListener("focus", handleFocus);
+			}
+		});
 });
