@@ -1,5 +1,4 @@
 :root {
-	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
 
@@ -7,6 +6,10 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+* {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
 body {
@@ -33,7 +36,6 @@ body:not(.dark-mode) {
 }
 
 .cl-settings-container {
-	font-family: 'Roboto', sans-serif;
 	max-width: 400px;
 	margin: 20px;
 }
@@ -93,7 +95,7 @@ input[type="color"] {
 
 button {
 	padding: 8px 15px;
-	background-color: #4CAF50;
+	background-color: #4caf50;
 	color: white;
 	border: none;
 	border-radius: 5px;
@@ -116,25 +118,25 @@ h1 {
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	padding: 1rem 1rem 0.2rem 1rem;
 }
-  
+
 .cl-setting {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 }
-  
+
 label {
 	display: flex;
 	align-items: center;
 	font-weight: 500;
 	font-size: 18px;
 }
-  
+
 label i {
 	margin-right: 0.5rem;
 	color: #3498db;
 }
-  
+
 input[type="color"] {
 	width: 40px;
 	height: 40px;
@@ -142,20 +144,20 @@ input[type="color"] {
 	border-radius: 4px;
 	cursor: pointer;
 }
-  
+
 .cl-switch {
 	position: relative;
 	display: inline-block;
 	width: 40px;
 	height: 34px;
 }
-  
+
 .cl-switch input {
 	opacity: 0;
 	width: 0;
 	height: 0;
 }
-  
+
 .cl-slider {
 	position: absolute;
 	cursor: pointer;
@@ -164,10 +166,10 @@ input[type="color"] {
 	right: 0;
 	bottom: 0;
 	background-color: #4caeff;
-	transition: .4s;
+	transition: 0.4s;
 	border-radius: 34px;
 }
-  
+
 .cl-slider:before {
 	position: absolute;
 	content: "";
@@ -176,10 +178,10 @@ input[type="color"] {
 	left: 4px;
 	bottom: 4px;
 	background-color: #85bfee;
-	transition: .4s;
+	transition: 0.4s;
 	border-radius: 50%;
 }
-  
+
 input:checked + .cl-slider {
 	background-color: white;
 }
@@ -187,8 +189,9 @@ input:checked + .cl-slider {
 input:checked + .cl-slider:before {
 	transform: translateX(26px);
 }
-  
-.cl-reset-btn, .cl-github-btn {
+
+.cl-reset-btn,
+.cl-github-btn {
 	display: inline-block;
 	padding: 10px 20px;
 	background-color: #3498db;
@@ -200,16 +203,17 @@ input:checked + .cl-slider:before {
 	text-decoration: none;
 	transition: background-color 0.3s;
 }
-  
-.cl-reset-btn:hover, .cl-github-btn:hover {
+
+.cl-reset-btn:hover,
+.cl-github-btn:hover {
 	background-color: #2980b9;
 }
-  
+
 .cl-github-btn {
 	margin-top: 0.5rem;
 	background-color: #333;
 }
-  
+
 .cl-github-btn:hover {
 	background-color: #555;
 }

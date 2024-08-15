@@ -1,9 +1,9 @@
 :root {
-    --dark-block-colour: #779556;
-    --light-block-colour: #ffffff;
-    --piece-colour: #000000;
-    --highlight-invalid-colour: #ff0000;
-    --highlight-valid-colour: #008000;
+	--dark-block-colour: #779556;
+	--light-block-colour: #ffffff;
+	--piece-colour: #000000;
+	--highlight-invalid-colour: #ff0000;
+	--highlight-valid-colour: #008000;
 }
 
 /* Tooltip */
@@ -39,16 +39,16 @@
 }
 
 body.cl-dark-mode {
-    background-color: #333;
-    color: white;
+	background-color: #333;
+	color: white;
 }
 
 .dark-mode .cl-header {
 	color: white;
 }
-  
+
 .dark-mode #cl-chess-container {
-	border-color: white;	
+	border-color: white;
 }
 
 .cl-chess-board-container {
@@ -100,6 +100,7 @@ body.cl-dark-mode {
 	height: 100%;
 	font-size: 30px;
 	cursor: pointer;
+	user-select: none;
 }
 
 div:has(> span.cl-chess-piece-dark) {
@@ -115,7 +116,7 @@ div:has(> span.cl-chess-piece-light) {
 .cl-header-container {
 	justify-content: space-between;
 	display: flex;
-    align-items: center;
+	align-items: center;
 }
 
 .cl-header {
@@ -157,7 +158,7 @@ div:has(> span.cl-chess-piece-light) {
 }
 
 .cl-drag-handle {
-    cursor: move;
+	cursor: move;
 	padding: 5px 5px;
 	border: none;
 	font-size: 16px;
@@ -179,7 +180,7 @@ div:has(> span.cl-chess-piece-light) {
 }
 
 .cl-symbol-btn-off {
-    background-color: #037703 !important;
+	background-color: #037703 !important;
 	cursor: pointer;
 	padding: 5px 10px;
 	border: none;
@@ -191,7 +192,7 @@ div:has(> span.cl-chess-piece-light) {
 }
 
 .cl-symbol-btn-on {
-    background-color: #64ee64 !important;
+	background-color: #64ee64 !important;
 	cursor: pointer;
 	padding: 5px 10px;
 	border: none;
@@ -230,37 +231,37 @@ div:has(> span.cl-chess-piece-light) {
 
 /* Tooltip */
 
-[title] {
-    position: relative;
+.cl-btn[title] {
+	position: relative;
 	cursor: pointer;
 }
 
-[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 5px 10px;
-    background-color: #333;
-    color: white;
-    border-radius: 4px;
-    font-size: 14px;
-    white-space: nowrap;
-    z-index: 1000;
-    margin-top: 5px;
+.cl-btn[title]:hover::after {
+	content: attr(title);
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 5px 10px;
+	background-color: #333;
+	color: white;
+	border-radius: 4px;
+	font-size: 14px;
+	white-space: nowrap;
+	z-index: 1000;
+	margin-top: 5px;
 }
 
-[title]:hover::before {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent #333 transparent;
-    margin-top: -5px;
+.cl-btn[title]:hover::before {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	border-width: 5px;
+	border-style: solid;
+	border-color: transparent transparent #333 transparent;
+	margin-top: -5px;
 }
 
 /* Password Meter */
@@ -269,8 +270,8 @@ div:has(> span.cl-chess-piece-light) {
 	margin-top: 10px;
 	width: 100%;
 	display: flex;
-    flex-direction: column;
-    align-items: center;
+	flex-direction: column;
+	align-items: center;
 }
 
 #cl-password-strength-meter {

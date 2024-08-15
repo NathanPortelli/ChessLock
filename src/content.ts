@@ -143,8 +143,16 @@ const symbols = ["!", "?", "*", ")", "&", "$", "{", "£", "@", "}", "_", "[", "^
 function toggleSymbolMode() {
 	isSymbolModeActive = !isSymbolModeActive;
 	const symbolBtn = document.getElementById("cl-symbol-btn");
+
 	if (symbolBtn) {
-		symbolBtn.className = isSymbolModeActive ? "cl-symbol-btn-on" : "cl-symbol-btn-off";
+		if (symbolBtn.classList.contains("cl-symbol-btn-on")) {
+			symbolBtn.classList.remove("cl-symbol-btn-on");
+			symbolBtn.classList.add("cl-symbol-btn-off");
+		} else {
+			symbolBtn.classList.add("cl-symbol-btn-on");
+			symbolBtn.classList.remove("cl-symbol-btn-off");
+		}
+
 		symbolBtn.textContent = isSymbolModeActive ? "⁈ [On]" : "⁈";
 	}
 }
@@ -513,7 +521,7 @@ const paintBoard = (firstTime?: boolean) => {
 				<div class="cl-drag-handle">☰</div>
 				<div class="cl-header">ChessLock</div>
 				<div class="cl-button-container">
-					<button class="cl-symbol-btn-off" id="cl-symbol-btn" title="Add symbols after notation">⁈</button>
+					<button class="cl-btn cl-symbol-btn-off" id="cl-symbol-btn" title="Add symbols after notation">⁈</button>
 					<button class="cl-btn" id="cl-reset-btn" title="Reset the chessboard and input">↺</button>
 					<button class="cl-btn" id="cl-cls-btn">✖</button>
 				</div>
