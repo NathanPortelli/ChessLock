@@ -107,11 +107,14 @@ onMounted(() => {
 		document.body.classList.add("dark-mode");
 	}
 });
+
+const version = `v.${import.meta.env.VITE_EXTENSION_VERSION}`;
 </script>
 
 <template>
 	<div :class="{ 'dark-mode': darkMode }" class="cl-settings-container">
-		<h1>ChessLock Settings</h1>
+		<h1 style="margin-bottom: 0">ChessLock Settings</h1>
+		<div style="margin-bottom: 15px">{{ version }}</div>
 		<div class="cl-settings-card">
 			<div class="cl-setting">
 				<label for="dark-mode">
