@@ -277,13 +277,13 @@ div:has(> span.cl-chess-piece-light) {
 #cl-password-strength-meter {
 	height: 5px;
 	width: 100%;
-	background-color: #ffffff;
+	background-color: transparent;
 	border-radius: 3px;
 }
 
 #cl-password-strength-meter::-webkit-meter-bar {
 	background: none;
-	background-color: #ffffff;
+	background-color: transparent;
 }
 
 #cl-password-strength-meter::-webkit-meter-optimum-value {

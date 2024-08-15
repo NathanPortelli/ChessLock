@@ -2,15 +2,13 @@
 import { ref, onMounted, watch } from "vue";
 import { ChessboardColours } from "./content";
 
-const darkBlockColour = ref("#779556");
-const lightBlockColour = ref("#ffffff");
-const pieceColour = ref("#000000");
-const highlightValidColour = ref("#008000");
-const highlightInvalidColour = ref("#ff0000");
+const darkBlockColour = ref<string>("#779556");
+const lightBlockColour = ref<string>("#ffffff");
+const pieceColour = ref<string>("#000000");
+const highlightValidColour = ref<string>("#008000");
+const highlightInvalidColour = ref<string>("#ff0000");
 
-const darkMode = ref(false);
-const isDefaultDarkMode = ref(true);
-const hasUserChangedDarkMode = ref(false);
+const darkMode = ref<boolean>(false);
 
 const saveColours = () => {
 	const colours: ChessboardColours = {
@@ -24,64 +22,60 @@ const saveColours = () => {
 
 	chrome.storage.sync.set({
 		chessboardColours: colours,
-		isDefaultDarkMode: isDefaultDarkMode.value
+		darkMode: darkMode.value
 	});
 
 	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 		chrome.tabs.sendMessage(tabs[0].id!, {
 			type: "UPDATE_COLOURS",
 			colours: colours,
-			darkMode: darkMode.value,
-			isDefaultDarkMode: isDefaultDarkMode.value
+			darkMode: darkMode.value
 		});
 	});
 };
 
 const loadColours = () => {
-	chrome.storage.sync.get(
-		["chessboardColours", "darkMode", "isDefaultDarkMode"],
-		(result: { [key: string]: any }) => {
-			if (result["chessboardColours"]) {
-				darkBlockColour.value = result["chessboardColours"].darkBlock;
-				lightBlockColour.value = result["chessboardColours"].lightBlock;
-				pieceColour.value = result["chessboardColours"].piece;
-				highlightValidColour.value = result["chessboardColours"].highlightValid.slice(0, -2);
-				highlightInvalidColour.value = result["chessboardColours"].highlightInvalid.slice(0, -2);
+	chrome.storage.sync.get(["chessboardColours", "darkMode"], (result: { [key: string]: any }) => {
+		if (result["chessboardColours"]) {
+			darkBlockColour.value = result["chessboardColours"].darkBlock;
+			lightBlockColour.value = result["chessboardColours"].lightBlock;
+			pieceColour.value = result["chessboardColours"].piece;
+			highlightValidColour.value = result["chessboardColours"].highlightValid.slice(0, -2);
+			highlightInvalidColour.value = result["chessboardColours"].highlightInvalid.slice(0, -2);
 
-				// to send colours to content script
-				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-					chrome.tabs.sendMessage(tabs[0].id!, {
-						type: "UPDATE_COLOURS",
-						colours: result["chessboardColours"]
-					});
+			// to send colours to content script
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id!, {
+					type: "UPDATE_COLOURS",
+					colours: result["chessboardColours"]
 				});
+			});
 
-				if (result.hasOwnProperty("isDefaultDarkMode")) {
-					isDefaultDarkMode.value = result["isDefaultDarkMode"] as boolean;
+			let darkModeSet = false;
+
+			if (result.hasOwnProperty("darkMode")) {
+				const dark = result["darkMode"];
+
+				if (dark !== undefined && dark !== null) {
+					darkMode.value = dark;
+					darkModeSet = true;
 				}
-
-				if (result.hasOwnProperty("hasUserChangedDarkMode")) {
-					hasUserChangedDarkMode.value = result["hasUserChangedDarkMode"] as boolean;
-				}
-
-				if (isDefaultDarkMode.value) {
-					darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-				} else if (result.hasOwnProperty("darkMode")) {
-					darkMode.value = result["darkMode"] as boolean;
-				}
-
-				// Send initial settings to content script
-				chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-					chrome.tabs.sendMessage(tabs[0].id!, {
-						type: "UPDATE_COLOURS",
-						colours: result["chessboardColours"] || {},
-						darkMode: darkMode.value,
-						isDefaultDarkMode: isDefaultDarkMode.value
-					});
-				});
 			}
+
+			if (!darkModeSet) {
+				darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+			}
+
+			// Send initial settings to content script
+			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+				chrome.tabs.sendMessage(tabs[0].id!, {
+					type: "UPDATE_COLOURS",
+					colours: result["chessboardColours"] || {},
+					darkMode: darkMode.value
+				});
+			});
 		}
-	);
+	});
 };
 
 watch(darkMode, (newValue) => {
@@ -91,10 +85,6 @@ watch(darkMode, (newValue) => {
 		document.body.classList.remove("dark-mode");
 	}
 
-	if (!hasUserChangedDarkMode.value) {
-		hasUserChangedDarkMode.value = true;
-		isDefaultDarkMode.value = false;
-	}
 	saveColours();
 });
 
@@ -105,8 +95,6 @@ const resetColours = () => {
 	highlightValidColour.value = "#008000";
 	highlightInvalidColour.value = "#ff0000";
 
-	isDefaultDarkMode.value = true;
-	hasUserChangedDarkMode.value = false;
 	darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 	saveColours();
@@ -114,15 +102,6 @@ const resetColours = () => {
 
 onMounted(() => {
 	loadColours();
-
-	const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-	mediaQuery.addEventListener("change", () => {
-		if (isDefaultDarkMode.value) {
-			darkMode.value = mediaQuery.matches;
-			saveColours();
-		}
-	});
 
 	if (darkMode.value) {
 		document.body.classList.add("dark-mode");
@@ -140,15 +119,7 @@ onMounted(() => {
 					Dark Mode
 				</label>
 				<label class="cl-switch">
-					<input
-						type="checkbox"
-						id="dark-mode"
-						v-model="darkMode"
-						@change="
-							hasUserChangedDarkMode = true;
-							isDefaultDarkMode = false;
-						"
-					/>
+					<input type="checkbox" id="dark-mode" v-model="darkMode" />
 					<span class="cl-slider"></span>
 				</label>
 			</div>
