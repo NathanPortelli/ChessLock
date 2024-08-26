@@ -28,5 +28,5 @@
 			"css": ["content.css"]
 		}
 	],
-	"permissions": ["scripting", "activeTab", "storage"]
+	"permissions": ["activeTab", "storage"]
 }
