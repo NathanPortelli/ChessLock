@@ -37,6 +37,8 @@ let currentColors: ChessboardColours | null = null;
 // For dark mode
 let isDarkMode = false;
 let isDefaultDarkMode = true;
+// For ignoring chess rules toggle
+let ignoreRules = false;
 // For dragging
 let isDragging = false;
 let dragOffsetX = 0;
@@ -70,6 +72,22 @@ function updateDarkMode() {
 		chessBoard.classList.toggle("dark-mode", isDarkMode);
 	}
 }
+
+// Initialising IgnoreChessRules
+chrome.storage.sync.get(["ignoreChessRules"], (result: { [key: string]: any }) => {
+    if (result.hasOwnProperty("ignoreChessRules")) {
+        ignoreRules = result["ignoreChessRules"] as boolean;
+    }
+});
+
+// todo: ignoreRules check
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // if (message.type === "UPDATE_SETTINGS") {
+    //     if (message.hasOwnProperty("ignoreChessRules")) {
+    //         ignoreRules = message.ignoreChessRules;
+    //     }
+    // }
+});
 
 // For colour settings
 export interface ChessboardColours {
@@ -368,6 +386,28 @@ function highlightValidMoves(moves: [number, number][]) {
 	paintBoard(false);
 }
 
+function getAnyMoves(row: number, col: number): [number, number][] {
+    const moves: [number, number][] = [];
+    
+    // Iterate over the entire board (8x8 grid)
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            // Skip the current piece's position
+            if (r === row && c === col) {
+                continue;
+            }
+
+            // Only add the move if the square is empty
+            if (isSquareEmpty(r, c)) {
+                moves.push([r, c]);
+            }
+        }
+    }
+
+    return moves;
+}
+
+
 function getPawnMoves(row: number, col: number): [number, number][] {
 	const moves: [number, number][] = [];
 	if (row > 0 && isSquareEmpty(row - 1, col)) {
@@ -505,21 +545,25 @@ function addMove(moves: [number, number][], row: number, col: number): boolean {
 }
 
 function getValidMoves(piece: string, row: number, col: number): [number, number][] {
-	switch (piece) {
-		case chessPieces.pawn:
-			return getPawnMoves(row, col);
-		case chessPieces.rook:
-			return getRookMoves(row, col);
-		case chessPieces.knight:
-			return getKnightMoves(row, col);
-		case chessPieces.bishop:
-			return getBishopMoves(row, col);
-		case chessPieces.queen:
-			return getQueenMoves(row, col);
-		case chessPieces.king:
-			return getKingMoves(row, col);
-		default:
-			return [];
+	if (ignoreRules) {
+		return getAnyMoves(row, col);
+	} else {
+		switch (piece) {
+			case chessPieces.pawn:
+				return getPawnMoves(row, col);
+			case chessPieces.rook:
+				return getRookMoves(row, col);
+			case chessPieces.knight:
+				return getKnightMoves(row, col);
+			case chessPieces.bishop:
+				return getBishopMoves(row, col);
+			case chessPieces.queen:
+				return getQueenMoves(row, col);
+			case chessPieces.king:
+				return getKingMoves(row, col);
+			default:
+				return [];
+		}
 	}
 }
 
