@@ -47,7 +47,7 @@ let dragOffsetY = 0;
 // DARK MODE
 
 // Initialising Dark Mode
-chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode"], (result: { [key: string]: any }) => {
+chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode", "ignoreRules"], (result: { [key: string]: any }) => {
 	if (result["chessboardColours"]) {
 		currentColors = result["chessboardColours"] as ChessboardColours;
 		updateColours(currentColors);
@@ -63,6 +63,10 @@ chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode"], (result: { [
 		isDarkMode = currentColors.darkMode;
 	}
 
+	if (result.hasOwnProperty("ignoreRules")) {
+        ignoreRules = result["ignoreRules"] as boolean;
+    }
+
 	updateDarkMode();
 });
 
@@ -72,22 +76,6 @@ function updateDarkMode() {
 		chessBoard.classList.toggle("dark-mode", isDarkMode);
 	}
 }
-
-// Initialising IgnoreChessRules
-chrome.storage.sync.get(["ignoreChessRules"], (result: { [key: string]: any }) => {
-    if (result.hasOwnProperty("ignoreChessRules")) {
-        ignoreRules = result["ignoreChessRules"] as boolean;
-    }
-});
-
-// todo: ignoreRules check
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    // if (message.type === "UPDATE_SETTINGS") {
-    //     if (message.hasOwnProperty("ignoreChessRules")) {
-    //         ignoreRules = message.ignoreChessRules;
-    //     }
-    // }
-});
 
 // For colour settings
 export interface ChessboardColours {
@@ -570,10 +558,11 @@ function getValidMoves(piece: string, row: number, col: number): [number, number
 // INIT
 
 chrome.runtime.onMessage.addListener(
-	(request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean }) => {
-		if (request.type === "UPDATE_COLOURS") {
+	(request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean; ignoreRules: boolean; }) => {
+		if (request.type === "UPDATE_SETTINGS") {
 			currentColors = request.colours;
 			updateColours(request.colours);
+			ignoreRules = request.ignoreRules;
 			isDefaultDarkMode = request.isDefaultDarkMode;
 
 			if (isDefaultDarkMode) {

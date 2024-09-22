@@ -9,125 +9,143 @@ const highlightValidColour = ref<string>("#008000");
 const highlightInvalidColour = ref<string>("#ff0000");
 
 const darkMode = ref<boolean>(false);
-const ignoreChessRules = ref<boolean>(false);
+const ignoreRules = ref<boolean>(false);
 
 const saveSettings = () => {
-    const colours: ChessboardColours = {
-        darkBlock: darkBlockColour.value,
-        lightBlock: lightBlockColour.value,
-        piece: pieceColour.value,
-        highlightValid: highlightValidColour.value.slice(0, 7) + "6b",
-        highlightInvalid: highlightInvalidColour.value.slice(0, 7) + "6b",
-        darkMode: darkMode.value
-    };
+	const colours: ChessboardColours = {
+		darkBlock: darkBlockColour.value,
+		lightBlock: lightBlockColour.value,
+		piece: pieceColour.value,
+		highlightValid: highlightValidColour.value.slice(0, 7) + "6b",
+		highlightInvalid: highlightInvalidColour.value.slice(0, 7) + "6b",
+		darkMode: darkMode.value
+	};
 
-    chrome.storage.sync.set({
-        chessboardColours: colours,
-        darkMode: darkMode.value,
-        ignoreChessRules: ignoreChessRules.value
-    });
+	chrome.storage.sync.set({
+		chessboardColours: colours,
+		darkMode: darkMode.value,
+        ignoreRules: ignoreRules.value
+	});
 
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id!, {
-            type: "UPDATE_SETTINGS",
-            colours: colours,
-            darkMode: darkMode.value,
-            ignoreChessRules: ignoreChessRules.value
-        });
-    });
+	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+		chrome.tabs.sendMessage(tabs[0].id!, {
+			type: "UPDATE_SETTINGS",
+			colours: colours,
+			darkMode: darkMode.value,
+            ignoreRules: ignoreRules.value
+		});
+	});
 };
 
 const loadSettings = () => {
-    chrome.storage.sync.get(["chessboardColours", "darkMode", "ignoreChessRules"], (result: { [key: string]: any }) => {
-        if (result["chessboardColours"]) {
-            darkBlockColour.value = result["chessboardColours"].darkBlock;
-            lightBlockColour.value = result["chessboardColours"].lightBlock;
-            pieceColour.value = result["chessboardColours"].piece;
-            highlightValidColour.value = result["chessboardColours"].highlightValid.slice(0, -2);
-            highlightInvalidColour.value = result["chessboardColours"].highlightInvalid.slice(0, -2);
-        }
+	chrome.storage.sync.get(["chessboardColours", "darkMode", "ignoreRules"], (result: { [key: string]: any }) => {
+		if (result["chessboardColours"]) {
+			darkBlockColour.value = result["chessboardColours"].darkBlock;
+			lightBlockColour.value = result["chessboardColours"].lightBlock;
+			pieceColour.value = result["chessboardColours"].piece;
+			highlightValidColour.value = result["chessboardColours"].highlightValid.slice(0, -2);
+			highlightInvalidColour.value = result["chessboardColours"].highlightInvalid.slice(0, -2);
 
-        if (result.hasOwnProperty("darkMode")) {
-            darkMode.value = result["darkMode"];
-        } else {
-            darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-        }
+			// to send colours to content script
+			chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id!, {
+					type: "UPDATE_SETTINGS",
+					colours: result["chessboardColours"]
+				});
+			});
 
-        if (result.hasOwnProperty("ignoreChessRules")) {
-            ignoreChessRules.value = result["ignoreChessRules"];
-        }
+			let darkModeSet = false;
 
-        // Send initial settings to content script
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id!, {
-                type: "UPDATE_SETTINGS",
-                colours: result["chessboardColours"] || {},
-                darkMode: darkMode.value,
-                ignoreChessRules: ignoreChessRules.value
-            });
-        });
-    });
+			if (result.hasOwnProperty("darkMode")) {
+				const dark = result["darkMode"];
+
+				if (dark !== undefined && dark !== null) {
+					darkMode.value = dark;
+					darkModeSet = true;
+				}
+			}
+
+			if (!darkModeSet) {
+				darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+			}
+
+            if (result.hasOwnProperty("ignoreRules")) {
+                ignoreRules.value = result["ignoreRules"];
+            }
+
+			// Send initial settings to content script
+			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+				chrome.tabs.sendMessage(tabs[0].id!, {
+					type: "UPDATE_SETTINGS",
+					colours: result["chessboardColours"] || {},
+					darkMode: darkMode.value,
+                    ignoreRules: ignoreRules.value
+				});
+			});
+		}
+	});
 };
 
-watch([darkMode, ignoreChessRules], () => {
-    if (darkMode.value) {
-        document.body.classList.add("dark-mode");
-    } else {
-        document.body.classList.remove("dark-mode");
-    }
+watch([darkMode, ignoreRules], (newValue) => {
+	if (newValue) {
+		document.body.classList.add("dark-mode");
+	} else {
+		document.body.classList.remove("dark-mode");
+	}
 
-    saveSettings();
+	saveSettings();
 });
 
 const resetSettings = () => {
-    darkBlockColour.value = "#779556";
-    lightBlockColour.value = "#ffffff";
-    pieceColour.value = "#000000";
-    highlightValidColour.value = "#008000";
-    highlightInvalidColour.value = "#ff0000";
-    darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    ignoreChessRules.value = false;
+	darkBlockColour.value = "#779556";
+	lightBlockColour.value = "#ffffff";
+	pieceColour.value = "#000000";
+	highlightValidColour.value = "#008000";
+	highlightInvalidColour.value = "#ff0000";
 
-    saveSettings();
+	darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    ignoreRules.value = false;
+
+	saveSettings();
 };
 
 onMounted(() => {
-    loadSettings();
+	loadSettings();
 
-    if (darkMode.value) {
-        document.body.classList.add("dark-mode");
-    }
+	if (darkMode.value) {
+		document.body.classList.add("dark-mode");
+	}
 });
 
 const version = `v.${import.meta.env.VITE_EXTENSION_VERSION}`;
 </script>
 
 <template>
-    <div :class="{ 'dark-mode': darkMode }" class="cl-settings-container">
-        <h1 style="margin-bottom: 0">ChessLock Settings</h1>
-        <div style="margin-bottom: 15px">{{ version }}</div>
-        <div class="cl-settings-card">
-            <div class="cl-setting">
-                <label for="dark-mode">
-                    <i class="fas fa-moon"></i>
-                    Dark Mode
-                </label>
-                <label class="cl-switch">
-                    <input type="checkbox" id="dark-mode" v-model="darkMode" />
-                    <span class="cl-slider"></span>
-                </label>
-            </div>
+	<div :class="{ 'dark-mode': darkMode }" class="cl-settings-container">
+		<h1 style="margin-bottom: 0">ChessLock Settings</h1>
+		<div style="margin-bottom: 15px">{{ version }}</div>
+		<div class="cl-settings-card">
+			<div class="cl-setting">
+				<label for="dark-mode">
+					<i class="fas fa-moon"></i>
+					Dark Mode
+				</label>
+				<label class="cl-switch">
+					<input type="checkbox" id="dark-mode" v-model="darkMode" />
+					<span class="cl-slider"></span>
+				</label>
+			</div>
             <div class="cl-setting">
                 <label for="ignore-chess-rules">
                     <i class="fas fa-chess"></i>
                     Ignore Rules
                 </label>
                 <label class="cl-switch">
-                    <input type="checkbox" id="ignore-chess-rules" v-model="ignoreChessRules" />
+                    <input type="checkbox" id="ignore-chess-rules" v-model="ignoreRules" />
                     <span class="cl-slider"></span>
                 </label>
             </div>
-        </div>
+		</div>
 		<div class="cl-settings-card">
 			<div class="cl-setting">
 				<label for="even-colour">
