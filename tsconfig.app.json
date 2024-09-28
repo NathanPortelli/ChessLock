@@ -25,7 +25,10 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitOverride": true,
-		"noPropertyAccessFromIndexSignature": true
+		"noPropertyAccessFromIndexSignature": true,
+
+		/* Additional */
+		"typeRoots": ["./node_modules/@types", "./types"]
 	},
 	"include": ["src/**/*.ts", "src/**/*.vue"]
 }

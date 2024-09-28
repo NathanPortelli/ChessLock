@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "ChessLock",
-	"version": "1.0.0",
+	"version": "0.1.1",
 	"description": "A browser extension that allows you to use chess moves as a password",
 	"background": {
 		"service_worker": "assets/background.js",

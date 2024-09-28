@@ -1,4 +1,5 @@
 import { createPopper, Instance } from "@popperjs/core";
+import zxcvbn from 'zxcvbn';
 
 const chessIconSvg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="41px" viewBox="0 0 30 40" version="1.1" style="pointer-events: none">
@@ -39,15 +40,19 @@ let isDarkMode = false;
 let isDefaultDarkMode = true;
 // For ignoring chess rules toggle
 let ignoreRules = false;
+// For notations
+let notationType: "algebraic" | "descriptive" | "iccf" = "algebraic";
 // For dragging
 let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
+// For password meter
+// declare var zxcvbn: any;
 
 // DARK MODE
 
 // Initialising Dark Mode
-chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode", "ignoreRules"], (result: { [key: string]: any }) => {
+chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode", "ignoreRules", "notationType"], (result: { [key: string]: any }) => {
 	if (result["chessboardColours"]) {
 		currentColors = result["chessboardColours"] as ChessboardColours;
 		updateColours(currentColors);
@@ -65,6 +70,10 @@ chrome.storage.sync.get(["chessboardColours", "isDefaultDarkMode", "ignoreRules"
 
 	if (result.hasOwnProperty("ignoreRules")) {
         ignoreRules = result["ignoreRules"] as boolean;
+    }
+
+	if (result["notationType"]) {
+        notationType = result["notationType"];
     }
 
 	updateDarkMode();
@@ -197,49 +206,49 @@ function toggleSymbolMode() {
 // PASSWORD METER
 
 function calculatePasswordStrength(password: string): number {
-	let strength = 0;
+	const result = zxcvbn(password);
+	return result.score;
+}
 
-	if (password.length > 8) strength += 1; // Length
-	if (password.length > 14) strength += 2; // Additional length
-	if (password.match(/[a-z]/)) strength += 1; // Lowercase letters
-	if (password.match(/[A-Z]/)) strength += 1; // Uppercase letters
-	if (password.match(/\d/)) strength += 1; // Numbers
-	if (password.match(/[^a-zA-Z\d]/)) strength += 2; // Special symbols
-
-	return Math.min(strength, 8);
+function getPasswordFeedback(password: string): any {
+	const result = zxcvbn(password);
+	return result.feedback;
 }
 
 function updatePasswordStrengthMeter(password: string) {
 	const strength = calculatePasswordStrength(password);
+	const feedback = getPasswordFeedback(password);
 	const meter = document.getElementById("cl-password-strength-meter") as HTMLDivElement;
 	const text = document.getElementById("cl-password-strength-text") as HTMLDivElement;
 
-	const percentage = (strength / 8) * 100;
+	let percentage = 0;
+	if (strength === 0) {
+		percentage = 10;
+	} else {
+		percentage = (strength / 4) * 100;
+	}
 	meter.style.width = `${percentage}%`;
 
 	let color, strengthText;
 
 	switch (strength) {
-		case 1:
-		case 2:
+		case 0:
 			color = "#ff4d4d";
 			strengthText = "Very Weak";
 			break;
-		case 3:
-		case 4:
+		case 1:
 			color = "#ffa64d";
 			strengthText = "Weak";
 			break;
-		case 5:
+		case 2:
 			color = "#ffff4d";
 			strengthText = "Moderate";
 			break;
-		case 6:
-		case 7:
+		case 3:
 			color = "#4dff4d";
 			strengthText = "Strong";
 			break;
-		case 8:
+		case 4:
 			color = "#00cc00";
 			strengthText = "Very Strong";
 			break;
@@ -558,8 +567,8 @@ function getValidMoves(piece: string, row: number, col: number): [number, number
 // INIT
 
 chrome.runtime.onMessage.addListener(
-	(request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean; ignoreRules: boolean; }) => {
-		if (request.type === "UPDATE_SETTINGS") {
+    (request: { type: string; colours: ChessboardColours; darkMode: boolean; isDefaultDarkMode: boolean; ignoreRules: boolean; notationType?: string }) => {
+        if (request.type === "UPDATE_SETTINGS") {
 			currentColors = request.colours;
 			updateColours(request.colours);
 			ignoreRules = request.ignoreRules;
@@ -570,6 +579,10 @@ chrome.runtime.onMessage.addListener(
 			} else {
 				isDarkMode = request.darkMode;
 			}
+
+			if (request.notationType && (request.notationType === "algebraic" || request.notationType === "descriptive" || request.notationType === "iccf")) {
+                notationType = request.notationType;
+            }
 
 			updateDarkMode();
 		}
@@ -596,6 +609,8 @@ const paintBoard = (firstTime?: boolean) => {
 		<div id="cl-password-strength-container">
 			<div id="cl-password-strength-meter"></div>
 			<div id="cl-password-strength-text"></div>
+			<div id="cl-password-warning"></div>
+			<div id="cl-password-suggestions"></div>
 		</div>`;
 		document.body.appendChild(chessBoard);
 		updateDarkMode();
@@ -635,6 +650,8 @@ const paintBoard = (firstTime?: boolean) => {
 	}
 };
 
+// Algebraic Notation
+
 function getPieceNotation(pieceType: string) {
 	switch (pieceType) {
 		case chessPieces.king:
@@ -650,7 +667,7 @@ function getPieceNotation(pieceType: string) {
 		case chessPieces.pawn:
 			return "";
 		default:
-			throw new Error("Unknown piece");
+			throw new Error("Unknown");
 	}
 }
 
@@ -662,9 +679,8 @@ function getRowNotation(row: number) {
 	return `${8 - row}`;
 }
 
-function getChessNotation(pieceType: string, newRow: number, newColumn: number) {
+function getAlgebraicChessNotation(pieceType: string, newRow: number, newColumn: number) {
 	let notation = "";
-
 	notation += getPieceNotation(pieceType);
 	notation += getColumnNotation(newColumn);
 	notation += getRowNotation(newRow);
@@ -675,6 +691,59 @@ function getChessNotation(pieceType: string, newRow: number, newColumn: number) 
 	}
 
 	return notation;
+}
+
+// Descriptive Row Notation (based on https://www.chess.com/blog/chess_dot_tom/how-to-read-descriptive-notation)
+
+function getDescriptiveColumnNotation(column: number) {
+    const columns = ["QR", "QN", "QB", "Q", "K", "KB", "KN", "KR"];
+    return columns[column];
+}
+
+function getDescriptiveRowNotation(row: number) {
+    return `${row + 1}`; 
+}
+
+function getDescriptiveChessNotation(pieceType: string, newRow: number, newColumn: number) {
+    let notation = "";
+    notation += getPieceNotation(pieceType);
+    notation += getDescriptiveColumnNotation(newColumn);
+    notation += getDescriptiveRowNotation(newRow);
+
+    if (isSymbolModeActive) {
+        notation += symbols[symbolIndex];
+        symbolIndex = (symbolIndex + 1) % symbols.length;
+    }
+
+    return notation;
+}
+
+// ICCF Notation
+
+function getICCFNotation(row: number, col: number) {
+	let notation = "";
+	const file = col + 1;
+    const rank = row + 1;
+	notation = `${file}${rank}`;
+
+	if (isSymbolModeActive) {
+        notation += symbols[symbolIndex];
+        symbolIndex = (symbolIndex + 1) % symbols.length;
+    }
+
+    return notation;
+}
+
+function getChessNotation(pieceType: string, newRow: number, newColumn: number) {
+	switch (notationType) {
+		case "descriptive":
+			return getDescriptiveChessNotation(pieceType, newRow, newColumn);
+		case "iccf":
+			return getICCFNotation(newRow, newColumn);
+		case "algebraic":
+		default:
+			return getAlgebraicChessNotation(pieceType, newRow, newColumn);
+	}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -776,7 +845,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 						if (Math.abs(difference) === 2) {
 							// You are castling
-
 							if (difference < 0) {
 								// Rook 1
 								virtualChessBoard[selectedPieceRow][0] = "";
@@ -810,14 +878,44 @@ document.addEventListener("DOMContentLoaded", () => {
 					virtualChessBoard[selectedPieceRow][selectedPieceCol] = "";
 
 					if (isPromotion) {
-						focusedInput.value += `${getColumnNotation(ncol)}${getRowNotation(nrow)}=Q`;
+						switch (notationType) {
+							case "descriptive":
+								focusedInput.value += `P-${getDescriptiveColumnNotation(ncol)}${getDescriptiveRowNotation(nrow)}(Q)`;
+								break;
+							case "iccf":
+								focusedInput.value += `${getICCFNotation(nrow, ncol)}=5`; // 5 = Q
+								break;
+							case "algebraic":
+							default:
+								focusedInput.value += `${getColumnNotation(ncol)}${getRowNotation(nrow)}=Q`;
+								break;
+						}
 					} else if (isCastleShort) {
-						focusedInput.value += "O-O";
+						switch (notationType) {
+							case "iccf":
+								focusedInput.value += "5178"; // Short castling notation: King to 7, Rook to 8
+								break;
+							case "descriptive":
+							case "algebraic":
+							default:
+								focusedInput.value += "O-O";
+								break;
+						}
 					} else if (isCastleLong) {
-						focusedInput.value += "O-O-O";
+						switch (notationType) {
+							case "iccf":
+								focusedInput.value += "5138"; // Long castling notation: King to 3, Rook to 8
+								break;
+							case "descriptive":
+							case "algebraic":
+							default:
+								focusedInput.value += "O-O-O";
+								break;
+						}
 					} else {
 						focusedInput.value += getChessNotation(selectedPiece, nrow, ncol);
-					}
+					}					
+
 					updatePasswordStrengthMeter(focusedInput.value);
 					unselectPiece();
 				}

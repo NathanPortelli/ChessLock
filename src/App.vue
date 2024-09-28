@@ -10,6 +10,7 @@ const highlightInvalidColour = ref<string>("#ff0000");
 
 const darkMode = ref<boolean>(false);
 const ignoreRules = ref<boolean>(false);
+const notationType = ref<string>("algebraic");
 
 const saveSettings = () => {
 	const colours: ChessboardColours = {
@@ -24,7 +25,8 @@ const saveSettings = () => {
 	chrome.storage.sync.set({
 		chessboardColours: colours,
 		darkMode: darkMode.value,
-        ignoreRules: ignoreRules.value
+        ignoreRules: ignoreRules.value,
+		notationType: notationType.value
 	});
 
 	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -32,13 +34,14 @@ const saveSettings = () => {
 			type: "UPDATE_SETTINGS",
 			colours: colours,
 			darkMode: darkMode.value,
-            ignoreRules: ignoreRules.value
+            ignoreRules: ignoreRules.value,
+			notationType: notationType.value
 		});
 	});
 };
 
 const loadSettings = () => {
-	chrome.storage.sync.get(["chessboardColours", "darkMode", "ignoreRules"], (result: { [key: string]: any }) => {
+	chrome.storage.sync.get(["chessboardColours", "darkMode", "ignoreRules", "notationType"], (result: { [key: string]: any }) => {
 		if (result["chessboardColours"]) {
 			darkBlockColour.value = result["chessboardColours"].darkBlock;
 			lightBlockColour.value = result["chessboardColours"].lightBlock;
@@ -73,6 +76,10 @@ const loadSettings = () => {
                 ignoreRules.value = result["ignoreRules"];
             }
 
+			if (result.hasOwnProperty("notationType")) {
+				notationType.value = result["notationType"];
+			}
+
 			// Send initial settings to content script
 			chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 				chrome.tabs.sendMessage(tabs[0].id!, {
@@ -86,7 +93,7 @@ const loadSettings = () => {
 	});
 };
 
-watch([darkMode, ignoreRules], (newValue) => {
+watch([darkMode, ignoreRules, notationType], (newValue) => {
 	if (newValue) {
 		document.body.classList.add("dark-mode");
 	} else {
@@ -105,6 +112,7 @@ const resetSettings = () => {
 
 	darkMode.value = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     ignoreRules.value = false;
+	notationType.value = "algebraic";
 
 	saveSettings();
 };
@@ -145,6 +153,17 @@ const version = `v.${import.meta.env.VITE_EXTENSION_VERSION}`;
                     <span class="cl-slider"></span>
                 </label>
             </div>
+			<div class="cl-setting">
+				<label for="notation-type">
+					<i class="fas fa-chess-queen"></i>
+					Notation
+				</label>
+				<select id="notation-type" v-model="notationType" @change="saveSettings">
+					<option value="algebraic">Algebraic</option>
+					<option value="descriptive">Descriptive</option>
+					<option value="iccf">ICCF Numeric</option>
+				</select>
+			</div>
 		</div>
 		<div class="cl-settings-card">
 			<div class="cl-setting">

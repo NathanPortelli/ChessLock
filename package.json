@@ -10,7 +10,8 @@
 	},
 	"dependencies": {
 		"@popperjs/core": "^2.11.8",
-		"vue": "^3.4.29"
+		"vue": "^3.4.29",
+		"zxcvbn": "^4.4.2"
 	},
 	"devDependencies": {
 		"@types/chrome": "^0.0.268",
